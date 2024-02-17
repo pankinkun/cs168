@@ -1,0 +1,53 @@
+
+In this lab, we will explore the blinded digital signatures used for DigiCash.
+
+
+PART 1: Implement Blind RSA
+---------------------------
+
+Download rsa.js from the course website. It demonstrates the math for the RSA algorithm.  Run it and see the results.
+
+Of course, you should never use this for anything real, but it helps to see the math in action.
+
+Add blind and unblind functions for working with signatures.  Test out your solution, then paste these functions into Canvas.
+
+For unblinding, you will need to do modular division.  You may find modularDivision.js useful.  The modDivide method will return the result of division, IF DIVISION IS POSSIBLE.  In regular division, 1/0 is not defined.  There are many more cases for undefined modular division, in which case the modDivide function will return a JS 'undefined' value.
+
+
+
+Part 2: Spy Games
+-----------------
+
+Now that we know how the math works, we will use a Node module for blind signatures.  You can install this module through npm.  From the command line, type:
+
+$ npm install blind-signatures
+
+Now, we can use this library to create a blind signed authorizations for government spies.  (This example was taken from Chapter 5.3 of Bruce Schneier's "Applied Cryptography", 2nd edition.)
+
+The motivation is that spies want to carry letters from their own government providing them with diplomatic immunity.  In case they are caught, the letters could protect them from execution.
+
+However, there is a risk of a mole in the spy agency, who might disclose the identity of the spy.  Blind signatures can allow the spy to get their letter of diplomatic immunity without any risk of the mole determining their cover name.
+
+But there is another risk.  The agency might not totally trust its spies, and be worried that one of them might exploit the system to get other documents signed.
+
+To defend against this attack, we will use a "cut and choose" approach.  In short, the spy will prepare many cover identities.  The agency will verify that all but one of the documents are valid, and then sign the last unblinded document.
+
+Download driver.js, spyAgency.js, and rand.js from the course website.
+
+
+Your job is to play the role of the spy.  Prepare 10 documents with 10 different cover identities (using the makeDocument function).  Blind each of the 10 documents, and remember to store their blinding factors. (Use blindSignatures.messageToHash for your hash function).
+
+The 'signDocument' function takes a callback function, which is a common design pattern in JavaScript.  The callback function has a 'selected' parameter that specifies which of the 10 documents the spy agency will sign.
+
+Within this callback function, you must call the 'verifyAndSign' function, specifying arrays with:
+1) the blinding factors
+2) the original documents
+
+Note that you should specify this information for all documents EXCEPT the specified document.  (In the selected position, set these positions to 'undefined'.)
+
+The verifyAndSign function will return the blinded signature.  Unblind it, and make sure that the signature is valid for the selected document.
+
+
+Paste your code for driver.js to Canvas.
+
+

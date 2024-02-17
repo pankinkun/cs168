@@ -1,0 +1,52 @@
+WRITE A CRYPTOCURRENCY PRICE CONVERTER
+--------------------------------------
+
+In this lab, we will explore some of the features of JavaScript.  We will parse JSON data, add methods to a class, and make use of JS's event handling model.
+
+If you have not done so already, install Node.js (https://nodejs.org/en/) on your system.
+
+
+PART 1: Parse JSON Data
+-----------------------
+Download currencyConverter.js and rates.json from the course website.
+
+The rates.json file contains the prices for several popular cryptocurrencies in terms of US dollars (USD).  Review this file to get familiar with the information it contains and the structure of the data.
+
+Next, implement the readJsonFromFile function.  It should return an object containing the pricing information.
+
+Use fs.readFileSync to get the contents of the file.  (The "Sync" section at the end of https://devhints.io/nodejs-fs shows you how to do this -- ignore the earlier "Reading" section on this same page).
+
+Use JSON.parse to convert this data to a JS object.  See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse for details about this method.
+
+
+PART 2: Calculate Pricing Information
+-------------------------------------
+Once you have part 1 completed, cnv.rates should contain all of the conversion rates between USD and the different cryptocurrencies.
+
+Update the calculateRates static method to add the conversion rates between different cryptocurrencies.  Determine the rates by using the USD values of both currencies.
+
+Uncomment the calls to the 'test' function toward the end of the file.  If you implemented calculateRates correctly, they should print:
+
+4000 ETH is worth 129.23225502950967 BTC.
+200 BTC is worth 293589.0343862397 EOS.
+
+
+PART 3: Adding Event Handlers
+-----------------------------
+In JavaScript, event listeners are very frequently used.  In this part, we'll update the CurrencyConverter class to respond to "SHOW_PRICE" and "UPDATE_USD_PRICE" events.  (You may use the constants defined at the top of the file.
+
+CurrencyConverter is defined as a subclass of EventEmitter, meaning that it can use the 'on' method to register event listeners and the 'emit' method to trigger an event.
+
+The constructor already registers an event listener for the "SHOW_PRICE" event.  On this event, the CurrencyConverter instance should print out the exchange rate between 2 currencies (defined by the 'from' and 'to' fields specified in the argument for the event).  Update this event listener accordingly.
+
+Add another event listener for "UPDATE_USD_PRICE" events.  This event should update the USD price for the specified cryptocurrency.  This change means that the exchange rates for this cryptocurrency with all other cryptocurrencies will need to be updated as well.
+
+Once complete, the commented events at the end of currencyConverter.js should print:
+
+1 EOS = 0.0006812243530079674 BTC
+1 EOS = 0.02108527326563829 ETH
+1 ETC = 0.03748463204111931 ETH
+1 LTC = 0.00919515056165485 BTC
+1 LTC = 0.0006549353358141572 BTC
+
+In particular, note how the LTC-BTC rate has changed in the last 2 messages after the update to BTC's USD price.

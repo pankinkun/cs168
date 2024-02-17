@@ -1,0 +1,9 @@
+In this lab, we will explore the Merkle tree data structure used in Bitcoin to order transactions.
+
+Starter code is available on the course website.  The code builds up a Merkle tree in an array, where the root is the 0th index, its child nodes are at index 1 and index 2, its grand-children nodes are at indices 3-6, and so on.
+
+Implement the 'getPath' method to return a JSON object with the nodes needed to reconstruct the hash.  Pass that path and the original transaction to the 'verify' method, which should return true if the transaction matches up with the Merkle tree.
+
+Test your solution, and then paste your code into Canvas.
+
+

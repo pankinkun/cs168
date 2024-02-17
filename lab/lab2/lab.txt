@@ -1,0 +1,55 @@
+
+Today's lab will explore the crypto module for Node.JS.
+
+
+Part 1: Digital signatures
+--------------------------
+
+In this part, we will use digital signatures to verify the integrity
+of a field.  Starter code is available on the course website.
+
+First, we need to generate a public/private key pair.
+We will use the 'keypair' module.  From the command line,
+install it with:
+
+$ npm i keypair
+
+A CertificateAuthority class is used to store the public keys
+and tie them to the right identity.  Using this class, you can look
+up a public key if you know the corresponding ID.
+
+The 'sign' function takes in an object and a private key.
+Sign the "message" field of the object and store the signature
+in a "sig" field on that object.
+
+The 'verify' method takes in an object signed with your 'sign' function.
+The signer's ID is stored in the 'id' field of the object.
+Look up the public key from the certificate authority and return true if
+the signature is valid.
+
+See https://nodejs.org/api/crypto.html#crypto_class_sign for an example
+of how to sign and verify values in Node.js.
+
+
+Part 2: Using hashes for password management
+--------------------------------------------
+
+For part 2, we will create a password management system.
+(We will use SHA256 for our hashing function, though it is not
+a great function to use for passwords specifically.  See
+https://crackstation.net/hashing-security.htm for a good discussion
+of proper hashing for passwords).
+
+The PasswordManager stores a map of username->hashes and
+a map of username->salt values.  Both are initially empty.
+
+The storePassword method takes in a username and a password.
+Store the password by hashing the username with a unique salt value.
+(If you are rusty on this part -- salt values are values mixed in
+with the password BEFORE hashing in order to guarantee that 2 users
+with the same password will still have different hash values).
+You can choose whatever salt value you like, though it should be
+unique for every user.
+
+Next, update the verifyPassword.  Given a username, test whether
+the specified password is correct.
