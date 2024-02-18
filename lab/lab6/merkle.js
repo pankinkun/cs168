@@ -131,13 +131,13 @@ class MerkleTree {
     }
 
     let hash
-    let parent 
+    let parent
 
     for (let key in path) {
-       if (key === 0) {
+      if (key === 0) {
         return this.hashes[0] === hash
       }
-      
+
       if (key === "txInd") {
         continue
       }
