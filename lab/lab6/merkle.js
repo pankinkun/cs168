@@ -119,13 +119,6 @@ class MerkleTree {
     let i = path.txInd;
     let h = utils.hash(tx);
 
-    //
-    // **YOUR CODE HERE**
-    //
-    // starting at i, hash the appropriate nodes and verify that their hashes
-    // match their parent nodes, until finally hitting the Merkle root.
-    // If the Merkle root matches the path, return true.
-
     if (i === 0) {
       return this.hashes[0] === h
     }
@@ -133,27 +126,50 @@ class MerkleTree {
     let hash
     let parent
 
-    for (let key in path) {
-      if (key === 0) {
+    if (i > 0 && i % 2 === 0) {
+      i = i - 1
+    } else if (i > 0 && i % 2 !== 0 && i < this.hashes.length - 1) {
+      i = i + 1
+    }
+
+    if (i % 2 === 0) {
+      parent = i / 2 - 1
+      hash = utils.hash("" + h + "," + path[i])
+    } else {
+      parent = Math.floor((i + 1) / 2) - 1
+      hash = utils.hash("" + path[i] + "," + h)
+    }
+
+    if (this.hashes[parent] === hash) {
+      h = this.hashes[parent]
+
+      i = parent
+
+      i % 2 === 0 ? i = i - 1 : i = i + 1
+    } else {
+      console.log("hashes don't match at " + i + " " + h + " " + path[i])
+      return false
+    }
+
+    while (i >= 0) {
+      if (i === 0) {
         return this.hashes[0] === hash
       }
 
-      if (key === "txInd") {
-        continue
-      }
-
-      if (key % 2 === 0) {
-        parent = key / 2 - 1
+      if (i % 2 === 0) {
+        parent = i / 2 - 1
+        hash = utils.hash("" + h + "," + path[i])
       } else {
-        parent = Math.floor((key + 1) / 2) - 1
+        parent = Math.floor((i + 1) / 2) - 1
+        hash = utils.hash("" + path[i] + "," + h)
       }
-
-      hash = utils.hash("" + h + "," + path.key)
 
       if (this.hashes[parent] === hash) {
         h = this.hashes[parent]
+        i = parent
+        i % 2 === 0 ? i = i - 1 : i = i + 1
       } else {
-        console.log("hashes don't match at " + key)
+        console.log("hashes don't match at " + i + " " + h + " " + path[i])
         return false
       }
     }
@@ -194,3 +210,11 @@ class MerkleTree {
 
 exports.MerkleTree = MerkleTree;
 
+// 1) Passed an object, then txInd for the starting point
+// Calculate “uncle” node’s index
+// Hash the current result with the hash provided by uncle node
+// When you reach the root, verify that you have a match.
+
+// 2) Use an array(or maybe arrays) containing a) the hashes required on the Merkle path in the order that you need them
+// b) the starting index
+//i = (i%2) ? i/2-1 : Math.floow((i+1) / 2) - 1;

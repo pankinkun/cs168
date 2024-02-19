@@ -21,16 +21,16 @@ let mt = new MerkleTree(["a","b","c","d","e","f","g","h"]);
 mt.display()
 
 test(mt, "c");
-// test(mt, "d");
-// test(mt, "f");
-// test(mt, "h");
+test(mt, "d");
+test(mt, "f");
+test(mt, "h");
 
-// // Corrupting an element of the hash
-// mt.hashes[2] = utils.hash("satoshi");
+// Corrupting an element of the hash
+mt.hashes[2] = utils.hash("satoshi");
 
-// // Should be caught as invalid.
-// test(mt, "c");
+// Should be caught as invalid.
+test(mt, "c");
 
-// // Should still be OK, since the corrupted position is not part of its path.
-// test(mt, "h");
+// Should still be OK, since the corrupted position is not part of its path.
+test(mt, "h");
 
