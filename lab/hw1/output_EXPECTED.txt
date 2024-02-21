@@ -1,0 +1,38 @@
+Depositing 200 into account for Alice.
+Depositing 50 into account for Bob.
+Depositing 50 into account for Charlie.
+Initial balances:
+{"Alice":200,"Bob":50,"Charlie":50}
+
+Alice buys a coin from the bank...
+Bank chooses coin 8 out of 10.
+Bank selected coin 8.
+Omitting coin 8.
+Verifying purchaser's coins...
+Revealed coins are valid.  Blindly signing remaining coin.
+***HAVE RECEIVED A SIGNED COIN d34fe6ef24acacf49f87456e2d4396c3ae4e439b320bcde0b4122a6cb9da5ad58f86e14fa0466b6ac8dccc248b1f4108***
+
+Alice gives the coin to Bob...
+Received coin d34fe6ef24acacf49f87456e2d4396c3ae4e439b320bcde0b4122a6cb9da5ad58f86e14fa0466b6ac8dccc248b1f4108.
+Received lrSelections from Bob.
+Accepting coin as valid.
+
+Bob redeems the coin from the bank...
+Coin #d34fe6ef24acacf49f87456e2d4396c3ae4e439b320bcde0b4122a6cb9da5ad58f86e14fa0466b6ac8dccc248b1f4108 has been redeemed.  Have a nice day.
+Balances after Bob redeems coin:
+{"Alice":180,"Bob":70,"Charlie":50}
+
+Bob attempts to redeem the same coin a second time from the bank...
+Coin d34fe6ef24acacf49f87456e2d4396c3ae4e439b320bcde0b4122a6cb9da5ad58f86e14fa0466b6ac8dccc248b1f4108 previously redeemed.  Determining cheater.
+The merchant tried to redeem the same coin twice.
+
+Alice attempts to double-spend the coin with Charlie...
+Received coin d34fe6ef24acacf49f87456e2d4396c3ae4e439b320bcde0b4122a6cb9da5ad58f86e14fa0466b6ac8dccc248b1f4108.
+Received lrSelections from Charlie.
+Accepting coin as valid.
+
+Charlie tries to redeem the double-spent coin...
+Coin d34fe6ef24acacf49f87456e2d4396c3ae4e439b320bcde0b4122a6cb9da5ad58f86e14fa0466b6ac8dccc248b1f4108 previously redeemed.  Determining cheater.
+Alice double spent coin d34fe6ef24acacf49f87456e2d4396c3ae4e439b320bcde0b4122a6cb9da5ad58f86e14fa0466b6ac8dccc248b1f4108.
+Final balances:
+{"Alice":180,"Bob":70,"Charlie":50}

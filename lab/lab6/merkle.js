@@ -79,14 +79,6 @@ class MerkleTree {
     let i = this.lookup[h];
     let path = { txInd: i };
 
-    //
-    // **YOUR CODE HERE**
-    //
-    // Starting at i, build up a path to the root, containing ONLY the nodes
-    // needed to reconstruct the Merkle root.  Include their position in the
-    // array so that a user who knows only the path and the Merkle root can
-    // verify the path.
-
     if (i === 0) {
       return path
     }

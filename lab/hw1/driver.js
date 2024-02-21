@@ -2,96 +2,79 @@
 
 const Bank = require('./bank.js').Bank;
 const Client = require('./client.js').Client;
-const { Coin, COIN_RIS_LENGTH, IDENT_STR, BANK_STR } = require('./coin.js');
+const { Coin, COIN_ACCEPTED, COIN_MINTED } = require('./coin.js');
 
-let bank = new Bank();
+const FakeNet = require('./fake-net.js');
 
-// The customer
-let alice = new Client('Alice');
-bank.registerClient(alice);
-bank.deposit({
-    account: alice.name,
-    amount: 200,
+let fakeNet = new FakeNet;
+
+let bank = new Bank(fakeNet);
+let alice = new Client('Alice', fakeNet, bank);
+let bob = new Client('Bob', fakeNet, bank);
+let charlie = new Client('Charlie', fakeNet, bank);
+
+// Connecting all nodes to the bank, and initializing Alice
+// and Bob's accounts with the bank.
+fakeNet.register(bank, alice, bob, charlie);
+alice.registerWithBank();
+bob.registerWithBank();
+charlie.registerWithBank();
+
+alice.deposit(200);
+bob.deposit(50);
+charlie.deposit(50);
+
+bank.showBalances("Initial balances:");
+
+setTimeout(() => {
+  console.log();
+  console.log("Alice buys a coin from the bank...");
+  alice.buyCoin(20);
 });
 
-// The merchant
-let bob = new Client('Bob');
-bank.registerClient(bob);
-bank.deposit({
-    account: bob.name,
-    amount: 50,
+let aliceCoin;
+
+// Alice gives the coin to Bob once she has received it.
+alice.on(COIN_MINTED, () => {
+  aliceCoin = alice.coin;
+  console.log();
+  console.log("Alice gives the coin to Bob...");
+  alice.giveCoin('Bob');
 });
 
-
-// Show the starting balances.
-console.log("Starting balances:");
-bank.showBalances();
-console.log();
-
-// For simplicity, we'll assume that there is only one coin.
-alice.buyCoin(bank, 20);
-
-// Alice saves the coin for double-spending later
-let coin = alice.coin;
-
-// Normal transaction.
-alice.giveCoin(bob);
-bob.redeemCoin(bank);
-
-console.log("Balances after 1st coin:");
-bank.showBalances();
-console.log();
-
-// Alice attempts to double-spend the coin with bob.
-alice.coin = coin;
-alice.giveCoin(bob);
-bob.redeemCoin(bank);
-
-console.log("Balances after Alice's attempt to double-spend:");
-bank.showBalances();
-console.log();
-
-// A second normal transaction.
-alice.buyCoin(bank, 50);
-alice.giveCoin(bob);
-// Bob tracks the coin and RIS to redeem again later.
-let secondCoin = bob.coin;
-let ris = bob.ris;
-bob.redeemCoin(bank);
-
-console.log("Balances after 2nd coin spent:");
-bank.showBalances();
-console.log();
-
-// Bob attempts to double-redeem the 2nd coin.
-bob.coin = secondCoin;
-bob.ris = ris;
-bob.redeemCoin(bank);
-
-console.log("Balances after 2nd coin spent:");
-bank.showBalances();
-console.log();
-
-
-// Alice attempts to use a coin that has not been signed by the bank.
-let forgedCoin = new Coin("PuddinTame", 100, bank.n, bank.e);
-alice.coin = forgedCoin;
-try {
-  alice.giveCoin(bob);
-} catch (e) {
-  console.log("Bob rejects the forged coin.");
+bob.on(COIN_ACCEPTED, () => {
+  // Saving information for Bob to double-spend.
+  let c = bob.receivedCoin;
+  let ris = bob.ris;
   console.log();
-}
+  console.log("Bob redeems the coin from the bank...");
+  bob.redeemCoin();
+  bank.showBalances("Balances after Bob redeems coin:");
 
-// Alice attempts to redeem the forged coin with the bank
-try {
-  alice.redeemCoin(bank);
-} catch (e) {
-  console.log("The bank rejects the forged coin.");
+  // Bob attempts to double spend.
+  setTimeout(() => {
+    console.log();
+    console.log("Bob attempts to redeem the same coin a second time from the bank...");
+    bob.receivedCoin = c;
+    bob.ris = ris;
+    bob.redeemCoin();
+  });
+});
+
+setTimeout(() => {
+  // Alice double spends the coin with Charlie.
   console.log();
-}
+  console.log("Alice attempts to double-spend the coin with Charlie...");
+  alice.coin = aliceCoin;
+  alice.giveCoin('Charlie');
+}, 1000);
 
-console.log("Balances after forgery attempts:");
-bank.showBalances();
-console.log();
+charlie.on(COIN_ACCEPTED, () => {
+  console.log();
+  console.log("Charlie tries to redeem the double-spent coin...");
+  charlie.redeemCoin();
+});
 
+setTimeout(() => {
+  bank.showBalances("Final balances:");
+}, 2000);

@@ -1,82 +1,88 @@
 "use strict";
 
-const blindSignatures = require('blind-signatures');
+const EventEmitter = require('events');
 
-const { Coin, COIN_RIS_LENGTH, IDENT_STR, BANK_STR, NUM_COINS_REQUIRED } = require('./coin.js');
 const utils = require('./utils.js');
+const {
+  Coin, IDENT_STR, NUM_COINS_REQUIRED, REGISTER, DEPOSIT, BUY, REVELATION,
+  REDEEM_COIN, SELECTION, COIN_SIGNED,
+} = require('./coin.js');
+const FakeNet = require('./fake-net.js');
 
 // This class represents a bank issuing DigiCash-lite coins.
-class Bank {
-  constructor() {
-    this.key = blindSignatures.keyGeneration({ b: 2048 });
+class Bank extends EventEmitter {
+  /**
+   * Creates a new Bank instance.
+   * 
+   * @param {FakeNet} fakeNet - The fake "network" used by the bank.
+   */
+  constructor(fakeNet) {
+    super();
+    this.fakeNet = fakeNet;
+
+    // Field needed for fakeNet
+    this.address = "BANK";
+
+    this.keypair = utils.generateKeyPair();
     this.ledger = {};
     this.coinDB = {}; // tracks previously redeemed coins
+    this.sessions = {};
+
+    // Each event simulates an incoming network message from a client.
+    this.on(REGISTER, this.registerClient);
+    this.on(DEPOSIT, this.deposit);
+    this.on(BUY, this.sellCoin);
+    this.on(REVELATION, this.verifyAndMint);
+    this.on(REDEEM_COIN, this.redeemCoin);
   }
 
-  // Returns the modulus used for digital signatures.
-  get n() {
-    return this.key.keyPair.n.toString();
+  /**
+   * Prints out the balances for all of the bank's customers.
+   * 
+   * @param {string} title - Title printed out with the balances.
+   */
+  showBalances(title) {
+    // Calling setTimeout so that balances do not print
+    // before the rest of the code is run.
+    setTimeout(() => {
+      console.log(title);
+      console.log(JSON.stringify(this.ledger));
+    }, 0);
   }
 
-  // Returns the e value used for digital signatures.
-  get e() {
-    return this.key.keyPair.e.toString();
+  /**
+   * Initializes a client's account with 0 value.
+   * 
+   * @param {string} account - The name of the owner of the account. 
+   */
+  registerClient({ account }) {
+    this.ledger[account] = 0;
   }
 
-  // Prints out the balances for all of the bank's customers.
-  showBalances() {
-    console.log(JSON.stringify(this.ledger));
-  }
-
-  // Initializes a client's account with 0 value.
-  registerClient(client) {
-    this.ledger[client.name] = 0;
-  }
-
-  // Updates the ledger to account for money submitted directly to the bank.
+  /**
+   * Updates the ledger to account for money submitted directly to the bank.
+   * 
+   * @param {Object} obj - The arguments to the function.
+   * @param {string} obj.account - The account to submit money to.
+   * @param {number} obj.amount - The amount of money to add to the account.
+   */
   deposit({account, amount}) {
     if (this.ledger[account] === undefined) {
-      throw new Error(`${account} is not a registered customer of the bank`);
+      throw new Error(`${account} is not a registered customer of the bank.`);
     }
+    console.log(`Depositing ${amount} into account for ${account}.`);
     this.ledger[account] += amount;
   }
 
-  // Updates the ledger to account for money withdrawn directly from the bank.
-  withdraw({account, amount}) {
-    if (this.ledger[account] === undefined) {
-      throw new Error(`${account} is not a registered customer of the bank`);
-    }
-    if (this.ledger[account] < amount) {
-      throw new Error("Insufficient funds");
-    }
-    this.ledger[account] -= amount;
-  }
-
-  // Returns the balance for the specified account.
-  balance(account) {
-    if (this.ledger[account] === undefined) {
-      throw new Error(`${account} is not a registered customer of the bank`);
-    }
-    return this.ledger[account];
-  }
-
-  // Transfers money between 2 of the bank's customers.
-  transfer({from, to, amount}) {
-    if (this.ledger[from] === undefined) {
-      throw new Error(`${from} is not a registered customer of the bank`);
-    }
-    if (this.ledger[to] === undefined) {
-      throw new Error(`${to} is not a registered customer of the bank`);
-    }
-    let fromBalance = this.ledger[from];
-    if (fromBalance < amount) {
-      throw new Error(`${from} does not have sufficient funds`);
-    }
-    this.ledger[from] = fromBalance - amount;
-    this.ledger[to] += amount;
-  }
-
-  // Verifies that a bank customer has sufficient funds for a transaction.
+  /**
+   * Verifies that a bank customer has sufficient funds for a transaction.
+   * 
+   * @param {Object} obj - The arguments to the function.
+   * @param {string} obj.account - The account to check.
+   * @param {number} obj.amount - The amount of money required.
+   * 
+   * @returns {boolean} - True if there are sufficient funds.
+   */
   verifyFunds({account, amount}) {
     if (this.ledger[account] === undefined) {
       throw new Error(`${account} is not a registered customer of the bank`);
@@ -85,20 +91,149 @@ class Bank {
     return balance >= amount;
   }
 
-  // This method represents the bank's side of the exchange when a user buys a coin.
-  sellCoin(account, amount, coinBlindedHashes, response) {
-    //
-    //  ***YOUR CODE HERE***
-    //
-    throw new Error('Not implemented yet.');
+  /**
+   * When this function is called, the bank begins the process of minting a
+   * coin for the client. The client must specify the amount of money that they
+   * want the coin to be for, and they must commit themselves to the unseen
+   * coins with an array of hashes.
+   * 
+   * The bank will store this information and reply with its selection from
+   * the unseen coins.
+   * 
+   * @param {Object} obj - The arguments from the client.
+   * @param {string} obj.account - The account which is purchasing the coin.
+   * @param {number} obj.amount - The amount of money required.
+   * @param {[BigInt]} obj.coinHashes - An array of hashes of the unseen coins.
+   */
+  sellCoin({account, amount, coinHashes}) {
+    if (this.sessions[account] !== undefined) {
+      throw new Error(`A coin purchase for ${account} is already underway.`)
+    }
+    if (coinHashes.length < NUM_COINS_REQUIRED) {
+      throw new Error(`Required #{NUM_COINS_REQUIRED} to be prepared, but only received ${coinHashes.length}`);
+    }
+
+    let selected =  utils.randInt(NUM_COINS_REQUIRED);
+
+    // Store session information.
+    this.sessions[account] = { amount, coinHashes, selected };
+
+    console.log(`Bank chooses coin ${selected} out of ${coinHashes.length}.`);
+
+    this.fakeNet.sendMessage(account, SELECTION, { selected: selected });
   }
 
-  // Adds a coin to a user's bank account.
+  /**
+   * Verifies that all revealed coins are valid, with the appropriate amount,
+   * encrypted identities, and hashes of the identity halves. If all coins
+   * are valid, the bank will sign the hash of the unseen coin, effectively
+   * "minting" new money that can be spent.
+   * 
+   * NOTE: This is not actually using blind signatures, so it would be possible
+   * for the purchaser to be identified after the coin has been spent (if the
+   * hash of the unseen coin was saved by the bank.)
+   * 
+   * @param {Object} obj - The arguments from the client.
+   * @param {string} obj.account - The account of the client purchasing the coin.
+   * @param {[string]} obj.coinStrArr - Array of coins in serialized, string format.
+   */
+  verifyAndMint({account, coinStrArr}) {
+    let acc = this.sessions[account];
+    let sig = undefined;
+
+    if (acc === undefined) {
+      throw new Error(`No coin purchase underway for ${account}.`)
+    }
+
+    //
+    // ***YOUR CODE HERE***
+    //
+    // Verify that all coins are valid, except for the unsent selected version.
+    // The coin can be reified (that is, turned in to an object) by calling
+    // JSON.parse on the coinSerialization and passing that object to
+    // "new Coin".
+    //
+    // Verify that the hash value of all coins matches the expected hashes sent
+    // previously by the client. If any do not match, throw an error.
+    //
+    // Verify that the amount of the coin is correct, that the coin identifies
+    // the appropriate account, and that all of the hashes of the identity
+    // pairs are correct. (Coin.hasValidHashes may be useful for the last part.)
+    // Throw an error if anything is incorrect.
+    //
+    // If everything is correct, deduct money from the purchaser's account and
+    // sign the hash of the unseen, selected coin.
+
+    this.fakeNet.sendMessage(account, COIN_SIGNED, { coinSig: sig });
+
+    // Delete session.
+    delete this.sessions[account];
+  }
+
+  /**
+   * "Blindly" signs the coin.  This function does not actually use blind
+   * signatures, but stands in as a placeholder for that function.
+   * 
+   * @param {string} coinHash - The hash of the coin in Hex format.
+   * @returns {Buffer} - The digital signature of the coin.
+   */
+  blindSign(coinHash) {
+    return utils.sign(this.keypair.private, coinHash);
+  }
+
+  /**
+   * If a token has been double-spent, determine who is the cheater.  If it was
+   * the customer who purchased the coin, their identity is revealed.
+   * 
+   * @param {string} guid - A hex string of the GUID of the coin.
+   * @param {Buffer} ris1 - Random identity string of the first purchase.
+   * @param {Buffer} ris2 - Random identity string of the second purchase.
+   */
+  determineCheater(guid, ris1, ris2) {
+    for (let i=0; i<ris1.length; i++) {
+      let identStr = utils.decryptOTP({
+        key: ris1[i],
+        ciphertext: ris2[i],
+        returnType: "string"
+      });
+      if (identStr.startsWith(IDENT_STR)) {
+        let cheater = identStr.split(':')[1];
+        console.log(`${cheater} double spent coin ${guid}.`);
+        return;
+      }
+    }
+    console.log("The merchant tried to redeem the same coin twice.");
+  }
+
+  /**
+   * Receives a coin from a client, verifies that the coin is valid, and pays
+   * the client if it is valid. If a double-spend attempt is detected, the bank
+   * uses the random identity string (RIS) to identify the cheater, potentially
+   * breaking the anonymity of the coin purchaser.
+   * 
+   * @param {Object} obj - The arguments from the client.
+   * @param {string} obj.account - The account of the client redeeming the coin.
+   * @param {Coin} obj.coin - The coin being redeemed.
+   * @param {[Buffer]} obj.ris - The RIS used in the exchange between clients.
+   */
   redeemCoin({account, coin, ris}) {
+    coin = new Coin(JSON.parse(coin));
+    ris = utils.deserializeBufferArray(ris);
     //
     //  ***YOUR CODE HERE***
     //
-    throw new Error('Not implemented yet.');
+    // Verify that the signature on the coin is correct. If not, log a message.
+    //
+    // Verify that the coin has not been spent previously by making sure it is
+    // not in this.coinDB.  If it _has_ been spent previously, determine the
+    // cheater. Check each position of the ris against the corresponding ris in
+    // this.coinDB. (You can use utils.decryptOTP to see if the 2 ris values
+    // reveal the account owner's identity.)  If the two ris values are
+    // identical, the merchant has attempted to redeem the coin a second time.
+    //
+    // If all looks good, store the Coin's guid and the ris used in this.coinDB
+    // and update the client's account to give them the amount of money
+    // specified by the coin.
   }
 }
 
