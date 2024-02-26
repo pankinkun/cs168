@@ -131,6 +131,13 @@ class Client extends EventEmitter {
     //
     // Using the sendToBank method, send the revealed coins (but **NOT** the
     // selected coin) to the bank. The message the bank expects is "REVELATION".
+
+    let serializedCoins = this.preparedCoins.filter((coin, index) => index !== selected)
+
+    this.sendToBank(REVELATION, {
+      account: this.name,
+      coinStrArr: serializedCoins.map((coin) => coin.serializeForBank())
+    })
   }
 
   /**
@@ -190,6 +197,16 @@ class Client extends EventEmitter {
     // For this portion:
     // 1. Verify the signature on the coin.
     // 2. Send the random picks for RIS, storing them in this.lrSelections.
+
+    if (!this.receivedCoin.verifySignature(this.bankPubKey)) {
+      throw new Error(`Invalid signature for ${this.receivedCoin.guid}`)
+    }
+
+    this.receiveCoinSig({ coinSig: this.receivedCoin.signature })
+
+    for (let i = 0; i < COIN_RIS_LENGTH; i++){
+      this.lrSelections.push(Math.random() < 0.5)
+    }
 
     this.fakeNet.sendMessage(senderAddress, REQUEST_RIS, {
       receiver: this.name,

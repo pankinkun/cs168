@@ -66,7 +66,7 @@ class Bank extends EventEmitter {
    * @param {string} obj.account - The account to submit money to.
    * @param {number} obj.amount - The amount of money to add to the account.
    */
-  deposit({account, amount}) {
+  deposit({ account, amount }) {
     if (this.ledger[account] === undefined) {
       throw new Error(`${account} is not a registered customer of the bank.`);
     }
@@ -83,7 +83,7 @@ class Bank extends EventEmitter {
    * 
    * @returns {boolean} - True if there are sufficient funds.
    */
-  verifyFunds({account, amount}) {
+  verifyFunds({ account, amount }) {
     if (this.ledger[account] === undefined) {
       throw new Error(`${account} is not a registered customer of the bank`);
     }
@@ -105,7 +105,7 @@ class Bank extends EventEmitter {
    * @param {number} obj.amount - The amount of money required.
    * @param {[BigInt]} obj.coinHashes - An array of hashes of the unseen coins.
    */
-  sellCoin({account, amount, coinHashes}) {
+  sellCoin({ account, amount, coinHashes }) {
     if (this.sessions[account] !== undefined) {
       throw new Error(`A coin purchase for ${account} is already underway.`)
     }
@@ -113,7 +113,7 @@ class Bank extends EventEmitter {
       throw new Error(`Required #{NUM_COINS_REQUIRED} to be prepared, but only received ${coinHashes.length}`);
     }
 
-    let selected =  utils.randInt(NUM_COINS_REQUIRED);
+    let selected = utils.randInt(NUM_COINS_REQUIRED);
 
     // Store session information.
     this.sessions[account] = { amount, coinHashes, selected };
@@ -137,7 +137,7 @@ class Bank extends EventEmitter {
    * @param {string} obj.account - The account of the client purchasing the coin.
    * @param {[string]} obj.coinStrArr - Array of coins in serialized, string format.
    */
-  verifyAndMint({account, coinStrArr}) {
+  verifyAndMint({ account, coinStrArr }) {
     let acc = this.sessions[account];
     let sig = undefined;
 
@@ -163,6 +163,26 @@ class Bank extends EventEmitter {
     //
     // If everything is correct, deduct money from the purchaser's account and
     // sign the hash of the unseen, selected coin.
+
+    coinStrArr.forEach((coinStr, i) => {
+      if (i === acc.selected) {
+        return
+      }
+
+      let coin = new Coin(JSON.parse(coinStr))
+
+      if (utils.hash(coin.hashInput()) !== acc.coinHashes[i]) {
+        throw new Error("Invalid hash")
+      }
+
+      if (!coin.identifies(account) && !coin.hasValidHashes()) {
+        throw new Error("Invalid amount")
+      }
+    })
+
+    this.ledger[account] -= acc.amount
+
+    sig = this.blindSign(acc.coinHashes[acc.selected])
 
     this.fakeNet.sendMessage(account, COIN_SIGNED, { coinSig: sig });
 
@@ -190,7 +210,7 @@ class Bank extends EventEmitter {
    * @param {Buffer} ris2 - Random identity string of the second purchase.
    */
   determineCheater(guid, ris1, ris2) {
-    for (let i=0; i<ris1.length; i++) {
+    for (let i = 0; i < ris1.length; i++) {
       let identStr = utils.decryptOTP({
         key: ris1[i],
         ciphertext: ris2[i],
@@ -216,7 +236,7 @@ class Bank extends EventEmitter {
    * @param {Coin} obj.coin - The coin being redeemed.
    * @param {[Buffer]} obj.ris - The RIS used in the exchange between clients.
    */
-  redeemCoin({account, coin, ris}) {
+  redeemCoin({ account, coin, ris }) {
     coin = new Coin(JSON.parse(coin));
     ris = utils.deserializeBufferArray(ris);
     //
