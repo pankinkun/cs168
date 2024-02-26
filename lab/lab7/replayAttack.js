@@ -10,16 +10,18 @@ console.log("Starting simulation.  This may take a moment...");
 let fakeNet = new FakeNet();
 
 // Clients
-let alice = new Client({name: "Alice", net: fakeNet});
-let belle = new Client({name: "Belle", net: fakeNet});
-let cinderella = new Client({name: "Cinderella", net: fakeNet});
+let alice = new Client({ name: "Alice", net: fakeNet });
+let belle = new Client({ name: "Belle", net: fakeNet });
+let cinderella = new Client({ name: "Cinderella", net: fakeNet });
 
 // Miners
-let minnie = new Miner({name: "Minnie", net: fakeNet});
-let mickey = new Miner({name: "Mickey", net: fakeNet});
+let minnie = new Miner({ name: "Minnie", net: fakeNet });
+let mickey = new Miner({ name: "Mickey", net: fakeNet });
 
 // Malicious client
-let maleficent = new Client({name: "Maleficent", net: fakeNet});
+let maleficent = new Client({ name: "Maleficent", net: fakeNet });
+
+let replayAddress
 
 // Maleficent listens for transactions where she receives a reward
 // so that she can replay them later.
@@ -30,6 +32,10 @@ maleficent.on(Blockchain.POST_TRANSACTION, (tx) => {
   // If one of the transaction's outputs is to maleficent's address,
   // save the transaction.  (You only need to do this the first time
   // that you see the transaction).
+  if (tx.outputs.address === maleficent.address) {
+    replayAddress = tx
+    return
+  }
 });
 
 //
@@ -42,6 +48,12 @@ maleficent.on(Blockchain.POST_TRANSACTION, (tx) => {
 // If the block reward is being given to minnie, rebroadcast the saved
 // transaction so that maleficent can steal the reward.
 //
+maleficent.on(Blockchain.PROOF_FOUND, (block) => {
+  if (block.rewardAddr === minnie) {
+    FakeNet.broadcast(POST_TRANSACTION, replayAddress)
+    block.rewardAddr = maleficent
+  }
+})
 
 // Creating genesis block
 let genesis = Blockchain.makeGenesis({

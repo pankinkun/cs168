@@ -8,13 +8,13 @@ console.log("Starting simulation.  This may take a moment...");
 let fakeNet = new FakeNet();
 
 // Clients
-let alice = new Client({name: "Alice", net: fakeNet});
-let bob = new Client({name: "Bob", net: fakeNet});
-let charlie = new Client({name: "Charlie", net: fakeNet});
+let alice = new Client({ name: "Alice", net: fakeNet });
+let bob = new Client({ name: "Bob", net: fakeNet });
+let charlie = new Client({ name: "Charlie", net: fakeNet });
 
 // Miners
-let minnie = new Miner({name: "Minnie", net: fakeNet});
-let mickey = new Miner({name: "Mickey", net: fakeNet});
+let minnie = new Miner({ name: "Minnie", net: fakeNet });
+let mickey = new Miner({ name: "Mickey", net: fakeNet });
 
 // Creating genesis block
 let genesis = Blockchain.makeGenesis({
@@ -31,7 +31,7 @@ let genesis = Blockchain.makeGenesis({
 
 // Late miner - Donald has more mining power, represented by the miningRounds.
 // (Mickey and Minnie have the default of 2000 rounds).
-let donald = new Miner({name: "Donald", net: fakeNet, startingBlock: genesis, miningRounds: 3000});
+let donald = new Miner({ name: "Donald", net: fakeNet, startingBlock: genesis, miningRounds: 3000 });
 
 function showBalances(client) {
   console.log(`Alice has ${client.lastBlock.balanceOf(alice.address)} gold.`);
@@ -55,6 +55,9 @@ mickey.initialize();
 // Alice transfers some money to Bob.
 console.log(`Alice is transfering 40 gold to ${bob.address}`);
 alice.postTransaction([{ amount: 40, address: bob.address }]);
+
+console.log(`Bob is transfering 40 gold to ${charlie.address}`);
+bob.postTransaction([{ amount: 20, address: charlie.address }]);
 
 setTimeout(() => {
   console.log();
