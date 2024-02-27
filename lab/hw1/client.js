@@ -94,7 +94,7 @@ class Client extends EventEmitter {
     // Hash the coins (using the Coin class's hashInput method and utils.hash)
     // and send the array of hashes to the bank.
 
-    for (let i = 0; i < 10; i++){
+    for (let i = 0; i < 10; i++) {
       let coin = Coin.makeCoin(this.name, amount)
       this.preparedCoins.push(coin)
       coinHashes.push(utils.hash(coin.hashInput()))
@@ -204,8 +204,8 @@ class Client extends EventEmitter {
 
     this.receiveCoinSig({ coinSig: this.receivedCoin.signature })
 
-    for (let i = 0; i < COIN_RIS_LENGTH; i++){
-      this.lrSelections.push(Math.random() < 0.5)
+    for (let i = 0; i < COIN_RIS_LENGTH; i++) {
+      this.lrSelections.push(Math.random() > 0.5)
     }
 
     this.fakeNet.sendMessage(senderAddress, REQUEST_RIS, {
@@ -228,7 +228,7 @@ class Client extends EventEmitter {
   provideRandomIdentityString({ receiver, lrSelections }) {
     console.log(`Received lrSelections from ${receiver}.`);
     let ris = [];
-    for (let i=0; i<COIN_RIS_LENGTH; i++) {
+    for (let i = 0; i < COIN_RIS_LENGTH; i++) {
       ris[i] = this.coin.getRis(lrSelections[i], i);
     }
 
@@ -259,6 +259,14 @@ class Client extends EventEmitter {
     // Throw an error if any of them do not match.
 
     this.ris = ris;
+
+    this.lrSelections.map((isLeft, i) => {
+      let half = this.receivedCoin.getRis(isLeft, i)
+
+      if (utils.hash(half) !== utils.hash(ris[i])) {
+        throw new Error('Invalid hash')
+      }
+    })
 
     console.log("Accepting coin as valid.");
 

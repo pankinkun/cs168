@@ -254,6 +254,16 @@ class Bank extends EventEmitter {
     // If all looks good, store the Coin's guid and the ris used in this.coinDB
     // and update the client's account to give them the amount of money
     // specified by the coin.
+
+    if (!coin.verifySignature()) {
+      console.log('Invalid signature')
+      return
+    }
+
+    if (this.coinDB[coin]) {
+      this.determineCheater(coin.guid, this.coinDB[coin], ris)
+      return
+    }
   }
 }
 
