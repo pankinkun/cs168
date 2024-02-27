@@ -85,7 +85,7 @@ class Client extends EventEmitter {
     }
 
     this.preparedCoins = [];
-    let coinHashes = [];
+    this.coinHashes = [];
 
     //
     // ***YOUR CODE HERE***
@@ -97,13 +97,13 @@ class Client extends EventEmitter {
     for (let i = 0; i < 10; i++) {
       let coin = Coin.makeCoin(this.name, amount)
       this.preparedCoins.push(coin)
-      coinHashes.push(utils.hash(coin.hashInput()))
+      this.coinHashes.push(utils.hash(coin.hashInput()))
     }
 
     this.sendToBank(BUY, {
       account: this.name,
       amount: amount,
-      coinHashes: coinHashes,
+      coinHashes: this.coinHashes,
     });
   }
 
@@ -132,13 +132,13 @@ class Client extends EventEmitter {
     // Using the sendToBank method, send the revealed coins (but **NOT** the
     // selected coin) to the bank. The message the bank expects is "REVELATION".
 
-    let serializedCoins = this.preparedCoins.filter((coin, i) => i !== selected)
+    this.serializedCoins = this.preparedCoins.filter((c, i) => c === this.coin)
 
-    serializedCoins.map((coin) => coin.serializeForBank())
+    this.serializedCoins.map((coin) => coin.serializeForBank())
 
     this.sendToBank(REVELATION, {
       account: this.name,
-      coinStrArr: serializedCoins
+      coinStrArr: this.serializedCoins
     })
   }
 

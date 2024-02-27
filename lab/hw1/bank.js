@@ -164,7 +164,7 @@ class Bank extends EventEmitter {
     // If everything is correct, deduct money from the purchaser's account and
     // sign the hash of the unseen, selected coin.
 
-    coinStrArr = utils.deserializeBufferArray(coinStrArr)
+    console.log(coinStrArr)
 
     coinStrArr.forEach((coinStr, i) => {
       if (i === acc.selected) {
@@ -173,10 +173,9 @@ class Bank extends EventEmitter {
 
       let coin = new Coin(JSON.parse(coinStr))
 
-
-      // if (utils.hash(coin.hashInput()) !== acc.coinHashes[i]) {
-      //   throw new Error("Invalid hash")
-      // }
+      if (utils.hash(coin.hashInput()) !== acc.coinHashes[i]) {
+        throw new Error("Invalid hash")
+      }
 
       if (!coin.identifies(account) && !coin.hasValidHashes()) {
         throw new Error("Invalid amount")
@@ -263,12 +262,12 @@ class Bank extends EventEmitter {
       return
     }
 
-    if (this.coinDB[coin.uuid]) {
-      this.determineCheater(coin.guid, this.coinDB[coin.uuid], ris)
+    if (this.coinDB[coin.guid]) {
+      this.determineCheater(coin.guid, this.coinDB[coin.guid], ris)
       return
     }
 
-    this.coinDB[coin.uuid] = ris
+    this.coinDB[coin.guid] = ris
     this.ledger[account] += coin.amount
   }
 }
