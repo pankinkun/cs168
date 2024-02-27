@@ -132,12 +132,25 @@ class Client extends EventEmitter {
     // Using the sendToBank method, send the revealed coins (but **NOT** the
     // selected coin) to the bank. The message the bank expects is "REVELATION".
 
-    let serializedCoins = this.preparedCoins.filter((coin, index) => index !== selected)
+    let serializedCoins = this.preparedCoins.filter((coin, i) => i !== selected)
+
+    serializedCoins.map((coin) => coin.serializeForBank())
 
     this.sendToBank(REVELATION, {
       account: this.name,
-      coinStrArr: serializedCoins.map((coin) => coin.serializeForBank())
+      coinStrArr: serializedCoins
     })
+  }
+
+  /**
+ * This method is where the unblinding of the signature _should_ be.
+ * 
+ * @param {Buffer} signature - the blinded signature.
+ * 
+ * @returns {Buffer} - the unblinded signature.
+ */
+  unblind(signature) {
+    return signature;
   }
 
   /**
