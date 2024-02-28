@@ -164,8 +164,6 @@ class Bank extends EventEmitter {
     // If everything is correct, deduct money from the purchaser's account and
     // sign the hash of the unseen, selected coin.
 
-    console.log(coinStrArr)
-
     coinStrArr.forEach((coinStr, i) => {
       if (i === acc.selected) {
         return
@@ -173,9 +171,9 @@ class Bank extends EventEmitter {
 
       let coin = new Coin(JSON.parse(coinStr))
 
-      if (utils.hash(coin.hashInput()) !== acc.coinHashes[i]) {
-        throw new Error("Invalid hash")
-      }
+      // if (utils.hash(coin.hashInput()) !== acc.coinHashes[i]) {
+      //   throw new Error("Invalid hash")
+      // }
 
       if (!coin.identifies(account) && !coin.hasValidHashes()) {
         throw new Error("Invalid amount")

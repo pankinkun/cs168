@@ -132,25 +132,14 @@ class Client extends EventEmitter {
     // Using the sendToBank method, send the revealed coins (but **NOT** the
     // selected coin) to the bank. The message the bank expects is "REVELATION".
 
-    this.serializedCoins = this.preparedCoins.filter((c, i) => c === this.coin)
+    let serializedCoins = this.preparedCoins.filter((c, i) => c === this.coin)
 
-    this.serializedCoins.map((coin) => coin.serializeForBank())
+    // let coins = serializedCoins.map(c => c.serializeForBank())
 
     this.sendToBank(REVELATION, {
       account: this.name,
-      coinStrArr: this.serializedCoins
+      coinStrArr: serializedCoins.map(c => c.serializeForBank())
     })
-  }
-
-  /**
- * This method is where the unblinding of the signature _should_ be.
- * 
- * @param {Buffer} signature - the blinded signature.
- * 
- * @returns {Buffer} - the unblinded signature.
- */
-  unblind(signature) {
-    return signature;
   }
 
   /**
@@ -163,13 +152,24 @@ class Client extends EventEmitter {
    */
   receiveCoinSig({ coinSig }) {
     console.log(`***HAVE RECEIVED A SIGNED COIN ${this.coin.guid}***`);
-    this.coin.signature = this.unblind(coinSig);
+    this.coin.signature = this.unblind(coinSig)
     if (!this.coin.verifySignature(this.bankPubKey)) {
       throw new Error(`Invalid signature for ${this.coin.guid}.`);
     }
 
     // Signals to the client that the coin is ready for spending.
     this.emit(COIN_MINTED);
+  }
+
+  /**
+  * This method is where the unblinding of the signature _should_ be.
+  * 
+  * @param {Buffer} signature - the blinded signature.
+  * 
+  * @returns {Buffer} - the unblinded signature.
+  */
+  unblind(signature) {
+    return signature;
   }
 
   /**
