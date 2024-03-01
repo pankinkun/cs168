@@ -1,0 +1,21 @@
+In today's lab, we will explore using a blockchain in a more unusual setting.  We are going to take advantage of some of the blockchain's properties to make a tamper-resistant logging framework.  The logger has nothing to do with cryptocurrencies, and does not even really need to be distributed, but still benefits from the blockchain's design.
+
+A blockchain provides an immutable history.  If you change a single transaction in the blockchain's history, the entire chain from that point forward is invalid.
+
+Essentially, the logging framework will collect messages and periodically find a proof (using proof-of-work).  Any attackers that want to overwrite the logs will need to have enough CPU power to overtake the logging framework's blockchain.  If the chain is long and the logging framework has a high amount of computational power (and makes blocks continuously) this will be difficult to do.
+
+
+Your job
+--------
+Download blockchain.js, logger.js, utils.js, and driver.js from the course website.
+
+Implement the findProof method of the Block class in blockchain.js.  This is similar to the previous lab, except that the proof is a field of the block object, rather than being a separate value appended to the block.
+
+Next, implement the write method in the BlockChain class (also in blockchain.js).  When the current block is full, you will need to find a proof for the block and store it in the blocks map (block hashes -> blocks).  Then create a new block to collect future incoming transactions.  The new block should store the hash of the previous block.
+
+Finally, update the isValid method.  Verify that every block matches its expected hash value, and that every block has a valid proof (except for the current block).
+
+
+Once finished, paste your updated blockchain code into Canvas.
+
+

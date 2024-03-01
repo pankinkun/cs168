@@ -25,15 +25,12 @@ class Prover {
   findProof(s) {
     let proof = 0
 
-    do {
-     if (this.verifyProof(s, proof)) {
-        break
+    while (true) {
+      if (this.verifyProof(s, proof)) {
+        return proof
       }
-
       proof++
-    } while (true)
-
-    return proof
+    }
   }
 }
 

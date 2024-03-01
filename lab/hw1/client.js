@@ -132,13 +132,19 @@ class Client extends EventEmitter {
     // Using the sendToBank method, send the revealed coins (but **NOT** the
     // selected coin) to the bank. The message the bank expects is "REVELATION".
 
-    let serializedCoins = this.preparedCoins.filter((c, i) => c === this.coin)
+    let serializedCoins = []
 
-    // let coins = serializedCoins.map(c => c.serializeForBank())
+    for (let i = 0; i < this.preparedCoins.length; i++) {
+      if (i !== selected) {
+        serializedCoins.push(this.preparedCoins[i].serializeForBank())
+      }
+    }
+
+    // let serializedCoins = this.preparedCoins.filter((coin, i) => { return coin !== this.coin }).forEach((coin) => { return coin.serializeForBank() })
 
     this.sendToBank(REVELATION, {
       account: this.name,
-      coinStrArr: serializedCoins.map(c => c.serializeForBank())
+      coinStrArr: serializedCoins
     })
   }
 
