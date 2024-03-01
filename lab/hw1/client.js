@@ -120,7 +120,7 @@ class Client extends EventEmitter {
   provideUnselectedCoinStrings({ selected }) {
     console.log(`Bank selected coin ${selected}.`);
     // Storing the selected coin for future reference.
-    this.coin = this.preparedCoins[selected];
+    this.coin = this.preparedCoins[selected]
 
     //
     // ***YOUR CODE HERE***
@@ -132,15 +132,9 @@ class Client extends EventEmitter {
     // Using the sendToBank method, send the revealed coins (but **NOT** the
     // selected coin) to the bank. The message the bank expects is "REVELATION".
 
-    let serializedCoins = []
-
-    for (let i = 0; i < this.preparedCoins.length; i++) {
-      if (i !== selected) {
-        serializedCoins.push(this.preparedCoins[i].serializeForBank())
-      }
-    }
-
-    // let serializedCoins = this.preparedCoins.filter((coin, i) => { return coin !== this.coin }).forEach((coin) => { return coin.serializeForBank() })
+    let serializedCoins = this.preparedCoins.map((c,i) => (
+      i !== selected ? c.serializeForBank() : null
+    ));
 
     this.sendToBank(REVELATION, {
       account: this.name,
@@ -221,8 +215,6 @@ class Client extends EventEmitter {
       throw new Error(`Invalid signature for ${this.receivedCoin.guid}`)
     }
 
-    this.receiveCoinSig({ coinSig: this.receivedCoin.signature })
-
     for (let i = 0; i < COIN_RIS_LENGTH; i++) {
       this.lrSelections.push(Math.random() > 0.5)
     }
@@ -280,9 +272,9 @@ class Client extends EventEmitter {
     this.ris = ris;
 
     this.lrSelections.map((isLeft, i) => {
-      let half = this.receivedCoin.getRis(isLeft, i)
+      let risHash = this.receivedCoin.getRisHash(isLeft, i)
 
-      if (utils.hash(half) !== utils.hash(ris[i])) {
+      if (risHash !== utils.hash(this.ris[i])) {
         throw new Error('Invalid hash')
       }
     })

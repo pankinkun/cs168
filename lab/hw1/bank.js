@@ -165,6 +165,9 @@ class Bank extends EventEmitter {
     // sign the hash of the unseen, selected coin.
 
     for (let i = 0; i < coinStrArr.length; i++) {
+      if (i === acc.selected) {
+        continue
+      }
 
       let coin = new Coin(JSON.parse(coinStrArr[i]))
 
@@ -252,12 +255,12 @@ class Bank extends EventEmitter {
     // and update the client's account to give them the amount of money
     // specified by the coin.
 
-    if (!coin.verifySignature()) {
+    if (!coin.verifySignature(this.keypair.public)) {
       console.log('Invalid signature')
       return
     }
 
-    if (this.coinDB[coin.guid]) {
+    if (coin.guid in this.coinDB) {
       this.determineCheater(coin.guid, this.coinDB[coin.guid], ris)
       return
     }
