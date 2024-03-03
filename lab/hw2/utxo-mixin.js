@@ -116,22 +116,16 @@ module.exports = {
     // **YOUR CODE HERE**
     //
 
-    let total = 0
-
-    outputs.forEach(({ amount }) => {
-      total += amount
-    })
-
-    total += fee
+    let total = outputs.reduce((acc, { amount }) => acc + amount, fee)
 
     if (this.confirmedBalance < total) {
       throw new Error('Insufficient funds')
     }
 
     let utxos = []
-
     let currTotal = 0
     let i = this.wallet.length - 1
+
     while (currTotal < total) {
       let { address, keyPair } = this.wallet[i]
       let amount = this.lastConfirmedBlock.balanceOf(address)
@@ -160,7 +154,7 @@ module.exports = {
 
     // If the client is a miner, add the transaction to the current block.
     if (this.addTransaction !== undefined) {
-      this.addTransaction(tx);
+      this.addTransaction();
     }
 
     return tx;
