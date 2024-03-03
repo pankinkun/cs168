@@ -34,6 +34,12 @@ module.exports = {
     // **YOUR CODE HERE**
     //
 
+    let total = 0
+    this.wallet.forEach(({ address }) => {
+      total += this.lastConfirmedBlock.balanceOf(address)
+    })
+
+    return total
   },
 
   /**
@@ -49,6 +55,12 @@ module.exports = {
     // **YOUR CODE HERE**
     //
 
+    let keyPair = utils.generateKeypair()
+    let address = utils.calcAddress(keyPair.publicKey)
+
+    this.wallet.push({ address: address, keyPair: keyPair })
+
+    return address
   },
 
   /**
@@ -100,12 +112,46 @@ module.exports = {
     // Once the transaction is created, sign it with all private keys for the UTXOs used.
     // The order that you call the 'sign' method must match the order of the from and pubKey fields.
 
-
     //
     // **YOUR CODE HERE**
     //
 
+    let total = 0
 
+    outputs.forEach(({ amount }) => {
+      total += amount
+    })
+
+    total += fee
+
+    if (this.confirmedBalance < total) {
+      throw new Error('Insufficient funds')
+    }
+
+    let utxos = []
+
+    let currTotal = 0
+    let i = this.wallet.length - 1
+    while (currTotal < total) {
+      let { address, keyPair } = this.wallet[i]
+      let amount = this.lastConfirmedBlock.balanceOf(address)
+
+      if (amount > 0) {
+        utxos.push({ address, keyPair })
+        currTotal += amount
+      }
+
+      i--
+    }
+
+    let changeAddress = this.createAddress()
+
+    let tx = Blockchain.makeTransaction({
+      from: utxos.map(({ address }) => address),
+      pubKey: utxos.map(({ keyPair }) => keyPair.publicKey),
+      outputs: outputs.concat({ amount: this.confirmedBalance - total, address: changeAddress }),
+      fee: fee
+    })
 
     // Adding transaction to pending.
     this.pendingOutgoingTransactions.set(tx.id, tx);

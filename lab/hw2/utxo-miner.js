@@ -53,6 +53,10 @@ module.exports = class UtxoMiner extends Miner {
     // **YOUR CODE HERE**
     //
 
+    if (this.lastBlock.rewardAddr === this.address || this.confirmedBalance === 0) {
+      this.createAddress()
+      this.setupWallet()
+    }
 
     super.startNewSearch(...args);
   }
