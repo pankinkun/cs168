@@ -34,14 +34,12 @@ class Mnemonic {
     //
     // ***YOUR CODE HERE***
     //
-
-    let byte = Buffer.from(bs, 'binary')
-
-    for (let i = 0; i < bs.length; i++) {
-      byte.writeUInt8(bs[i], i)
+    let bytes = [];
+    for (let i = 0; i < bs.length; i += 8) {
+      let byte = parseInt(bs.substr(i, 8), 2);
+      bytes.push(byte);
     }
-
-    return byte
+    return Buffer.from(bytes);
   }
 
   // Takes a buffer and returns an array of 11-bit unsigned ints
@@ -118,7 +116,6 @@ class Mnemonic {
       // If the caller specifies a list of words, use this for the mnemonic.
       this.calculateSequence(words);
     }
-
   }
 
   // Returns a string with the sequence of words matching to
@@ -133,7 +130,10 @@ class Mnemonic {
     // Convert 11-bit numbers to the corresponding words from the dictionary,
     // join together into a space-delimited string, and return the string.
 
-    let words = arr.map(n => this.wordlist[n]).join(' ')
+    let words = arr.map(n => {
+      n = this.constructor.translate11bit(n)
+      return this.wordlist[parseInt(n, 2)]
+    }).join(' ')
 
     return words
   }
@@ -143,7 +143,6 @@ class Mnemonic {
     // Dropping the last byte, holding the checksum.
     let seqHex = this.seq.toString('hex').slice(0, NUM_BYTES);
     let buf = Buffer.from(seqHex);
-
     // Hashing the buffer, returning the first byte of the hash
     // as the checksum.
     let h = crypto.createHash(HASH_ALG).update(buf).digest();
@@ -165,7 +164,20 @@ class Mnemonic {
     // Using that string of bits, convert to bytes and write
     // to the `this.seq` buffer.
 
-    
+    let bitString = wordArray.map(word => {
+      let n = this.wordlist.indexOf(word)
+      return this.constructor.translate11bit(n)
+    }).join('')
+
+    let byteString = bitString.match(/.{8}/g).map(this.constructor.convertBinStringToByte)
+
+    for (let i = 0; i < byteString.length; i++) {
+      byteString[i].copy(this.seq, i);
+    }
+
+    let checksum = this.calcChecksum()
+
+    this.seq.writeUInt8(checksum, NUM_BYTES)
   }
 
   // Returns true if the checksum matches its contents.
