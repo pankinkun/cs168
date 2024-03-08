@@ -18,7 +18,6 @@ module.exports = class UtxoBlock extends Block {
    * @returns {Boolean} - True if the transaction was added successfully.
    */
   addTransaction(tx, client) {
-
     if (this.transactions.get(tx.id)) {
       if (client) client.log(`Duplicate transaction ${tx.id}.`);
       return false;
