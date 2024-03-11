@@ -33,8 +33,8 @@ module.exports = class UtxoTransaction extends Transaction {
    * @param [obj.fee] - The amount of gold offered as a transaction fee.
    * @param [obj.data] - Object with any additional properties desired for the transaction.
    */
-  constructor({from, nonce, pubKey, sig=[], outputs, fee=0, data}) {
-    super({from, nonce, pubKey, sig, outputs, fee, data});
+  constructor({ from, nonce, pubKey, sig = [], outputs, fee = 0, data }) {
+    super({ from, nonce, pubKey, sig, outputs, fee, data });
   }
 
   /**
@@ -61,6 +61,14 @@ module.exports = class UtxoTransaction extends Transaction {
     //
     // **YOUR CODE HERE**
     //
+
+    let total = 0
+
+    this.from.forEach((address) => {
+      total += block.balanceOf(address)
+    })
+
+    return total
   }
 
   /**
@@ -92,6 +100,21 @@ module.exports = class UtxoTransaction extends Transaction {
     //
     // **YOUR CODE HERE**
     //
-  }
 
+    this.from.forEach((address, i) => {
+      if (!utils.addressMatchesKey(address, this.pubKey[i])) {
+        return false
+      }
+
+      if (!this.sig[i]) {
+        return false
+      }
+
+      if (!utils.verifySignature(this.pubKey[i], this.id, this.sig[i])) {
+        return false
+      }
+    })
+
+    return true
+  }
 }

@@ -39,18 +39,19 @@ module.exports = class UtxoBlock extends Block {
     // the balances of the accounts receiving the gold.
     //
     // If everything succeeds, return 'true'
-
     //
     // **YOUR CODE HERE**
     //
 
     this.transactions.set(tx.id, tx)
 
-    tx.inputs.forEach(({ address }) => {
-      if (this.balances.has(address)) {
+    tx.from.forEach((address) => {
+      if (this.balances.has(address))
         this.balances.delete(address)
-      }
     })
+
+    // this.balances.set(tx.from, this.balanceOf(tx.from) - tx.totalOutput())
+
 
     tx.outputs.forEach(({ amount, address }) => {
       this.balances.set(address, amount + this.balanceOf(address))
@@ -58,5 +59,4 @@ module.exports = class UtxoBlock extends Block {
 
     return true
   }
- 
 }

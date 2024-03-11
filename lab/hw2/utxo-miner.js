@@ -54,11 +54,9 @@ module.exports = class UtxoMiner extends Miner {
     //
 
     if (this.lastBlock.rewardAddr === this.address || this.confirmedBalance === 0) {
-      this.createAddress()
-      this.setupWallet()
+      this.address = this.createAddress()
     }
 
     super.startNewSearch(...args);
   }
-
 }
