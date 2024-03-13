@@ -164,20 +164,17 @@ class Mnemonic {
     // Using that string of bits, convert to bytes and write
     // to the `this.seq` buffer.
 
-    let bitString = wordArray.map(word => {
-      let n = this.wordlist.indexOf(word)
-      return this.constructor.translate11bit(n)
-    }).join('')
+    let bitString = ''
+    
+    wordArray.forEach(w => {
+      let n = this.wordlist.indexOf(w)
+      bitString += this.constructor.translate11bit(n)
+    })
 
-    let byteString = bitString.match(/.{8}/g).map(this.constructor.convertBinStringToByte)
-
-    for (let i = 0; i < byteString.length; i++) {
-      byteString[i].copy(this.seq, i);
-    }
-
-    let checksum = this.calcChecksum()
-
-    this.seq.writeUInt8(checksum, NUM_BYTES)
+    bitString.match(/.{8}/g).forEach((byteStr, i) => {
+      let byte = this.contructor.convertBinStringToByte(byteStr)
+      this.seq.writeUInt8(byte, i)
+    })
   }
 
   // Returns true if the checksum matches its contents.

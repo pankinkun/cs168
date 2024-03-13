@@ -52,7 +52,6 @@ module.exports = class UtxoBlock extends Block {
 
     // this.balances.set(tx.from, this.balanceOf(tx.from) - tx.totalOutput())
 
-
     tx.outputs.forEach(({ amount, address }) => {
       this.balances.set(address, amount + this.balanceOf(address))
     })
