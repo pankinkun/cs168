@@ -56,7 +56,7 @@ module.exports = {
     //
 
     let keyPair = utils.generateKeypair()
-    let address = utils.calcAddress(keyPair.publicKey)
+    let address = utils.calcAddress(keyPair.public)
 
     this.wallet.push({ address: address, keyPair: keyPair })
 
@@ -99,53 +99,55 @@ module.exports = {
   postTransaction: function(outputs, fee=Blockchain.DEFAULT_TX_FEE) {
 
     // Calculate the total value of gold needed and make sure the client has sufficient gold.
-    //
-    // If they do, gather up UTXOs from the wallet (starting with the oldest) until the total
-    // value of the UTXOs meets or exceeds the gold required.
-    //
-    // Determine by how much the collected UTXOs exceed the total needed.
-    // Create a new address to receive this "change" and add it to the list of outputs.
-    //
-    // Call `Blockchain.makeTransaction`, noting that 'from' and 'pubKey' are arrays
-    // instead of single values.  The nonce field is not needed, so set it to '0'.
-    //
-    // Once the transaction is created, sign it with all private keys for the UTXOs used.
-    // The order that you call the 'sign' method must match the order of the from and pubKey fields.
+    // let totalNeed = 0
 
-    //
-    // **YOUR CODE HERE**
-    //
+    // outputs.forEach(({ amount }) => {
+    //   totalNeed += amount
+    // })
 
-    let total = outputs.reduce((acc, { amount }) => acc + amount, fee)
+    let totalNeed = outputs.reduce((acc, { amount }) => acc + amount, 0) + fee
 
-    if (this.confirmedBalance < total) {
+    if (this.availableGold < totalNeed) {
       throw new Error('Insufficient funds')
     }
 
+    // If they do, gather up UTXOs from the wallet (starting with the oldest) until the total
+    // value of the UTXOs meets or exceeds the gold required.
     let utxos = []
-    let currTotal = 0
+    let totalValue = 0
     let i = this.wallet.length - 1
 
-    while (currTotal < total) {
+    while (totalValue < totalNeed) {
       let { address, keyPair } = this.wallet[i]
       let amount = this.lastConfirmedBlock.balanceOf(address)
 
       if (amount > 0) {
         utxos.push({ address, keyPair })
-        currTotal += amount
+        totalValue += amount
       }
-
       i--
     }
 
+    // Determine by how much the collected UTXOs exceed the total needed.
+    let excess = totalValue - totalNeed
+    
+    // Create a new address to receive this "change" and add it to the list of outputs.
     let changeAddress = this.createAddress()
 
+    // Call `Blockchain.makeTransaction`, noting that 'from' and 'pubKey' are arrays
+    // instead of single values.  The nonce field is not needed, so set it to '0'.
     let tx = Blockchain.makeTransaction({
       from: utxos.map(({ address }) => address),
-      pubKey: utxos.map(({ keyPair }) => keyPair.publicKey),
-      outputs: outputs.concat({ amount: this.confirmedBalance - total, address: changeAddress }),
+      nonce: 0,
+      pubKey: utxos.map(({ keyPair }) => keyPair.public),
+      outputs: [...outputs, { amount: excess, address: changeAddress }],
       fee: fee
     })
+
+    // Once the transaction is created, sign it with all private keys for the UTXOs used.
+    // The order that you call the 'sign' method must match the order of the from and pubKey fields.
+
+    utxos.forEach(({ keyPair }) => tx.sign(keyPair.private))
 
     // Adding transaction to pending.
     this.pendingOutgoingTransactions.set(tx.id, tx);

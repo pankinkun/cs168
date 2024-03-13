@@ -46,14 +46,11 @@ module.exports = class UtxoBlock extends Block {
     this.transactions.set(tx.id, tx)
 
     tx.from.forEach((address) => {
-      if (this.balances.has(address))
-        this.balances.delete(address)
+      this.balances.delete(address)
     })
 
-    // this.balances.set(tx.from, this.balanceOf(tx.from) - tx.totalOutput())
-
     tx.outputs.forEach(({ amount, address }) => {
-      this.balances.set(address, amount + this.balanceOf(address))
+      this.balances.set(address, amount)
     })
 
     return true

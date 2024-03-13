@@ -57,7 +57,6 @@ module.exports = class UtxoTransaction extends Transaction {
    */
   totalInput(block) {
     // Look up the balance for all address in the 'from' field of 'this'.
-
     //
     // **YOUR CODE HERE**
     //
@@ -66,7 +65,7 @@ module.exports = class UtxoTransaction extends Transaction {
 
     this.from.forEach((address) => {
       total += block.balanceOf(address)
-    })
+    })  
 
     return total
   }
@@ -101,8 +100,8 @@ module.exports = class UtxoTransaction extends Transaction {
     // **YOUR CODE HERE**
     //
 
-    this.from.forEach((address, i) => {
-      if (!utils.addressMatchesKey(address, this.pubKey[i])) {
+    for (let i = 0; i < this.from.length; i++) {
+      if (!utils.addressMatchesKey(this.from[i], this.pubKey[i])) {
         return false
       }
 
@@ -113,7 +112,7 @@ module.exports = class UtxoTransaction extends Transaction {
       if (!utils.verifySignature(this.pubKey[i], this.id, this.sig[i])) {
         return false
       }
-    })
+    }
 
     return true
   }

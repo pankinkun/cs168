@@ -14,7 +14,7 @@ const UtxoTransaction = require('./utxo-transaction.js');
 class TcpNet extends FakeNet {
   sendMessage(address, msg, o) {
     if (typeof o === 'string') o = JSON.parse(o);
-    let data = {msg, o};
+    let data = { msg, o };
     const client = this.clients.get(address);
     let clientConnection = net.connect(client.connection, () => {
       clientConnection.write(JSON.stringify(data));
@@ -27,7 +27,7 @@ class TcpNet extends FakeNet {
  * Provides a command line interface for a SpartanGold miner
  * that will actually communicate over the network.
  */
-class TcpMiner extends Miner {
+class TcpMiner extends UtxoMiner {
   static get REGISTER() { return "REGISTER"; }
 
   /**
@@ -35,8 +35,8 @@ class TcpMiner extends Miner {
    * also takes a JSON object for the connection information and sets
    * up a listener to listen for incoming connections.
    */
-  constructor({name, startingBlock, miningRounds, keyPair, connection} = {}) {
-    super({name, net: new TcpNet(), startingBlock, keyPair, miningRounds});
+  constructor({ name, startingBlock, miningRounds, keyPair, connection } = {}) {
+    super({ name, net: new TcpNet(), startingBlock, keyPair, miningRounds });
 
     // Setting up the server to listen for connections
     this.connection = connection;
@@ -44,7 +44,7 @@ class TcpMiner extends Miner {
     this.srvr.on('connection', (client) => {
       this.log('Received connection');
       client.on('data', (data) => {
-        let {msg, o} = JSON.parse(data);
+        let { msg, o } = JSON.parse(data);
         if (msg === TcpMiner.REGISTER) {
           if (!this.net.recognizes(o)) {
             this.registerWith(o.connection);
@@ -127,17 +127,17 @@ console.clear();
 
 let startingBalances = config.genesis ? config.genesis.startingBalances : {};
 let genesis = Blockchain.makeGenesis({
-  blockClass: Block,
-  transactionClass: Transaction,
+  blockClass: UtxoBlock,
+  transactionClass: UtxoTransaction,
   powLeadingZeroes: 17,
   startingBalances: startingBalances,
 });
 
 console.log(`Starting ${name}`);
-let minnie = new TcpMiner({name: name, keyPair: config.keyPair, connection: config.connection, startingBlock: genesis});
+let minnie = new TcpMiner({ name: name, keyPair: config.keyPair, connection: config.connection, startingBlock: genesis });
 
 // Silencing the logging messages
-minnie.log = function(){};
+minnie.log = function () { };
 
 // Register with known miners and begin mining.
 minnie.initialize(knownMiners);
@@ -156,6 +156,8 @@ function readUserInput() {
   Pending transactions: ${minnie.showPendingOut()}
   
   What would you like to do?
+  *create new (a)ddress?
+  *show my (U)TXOs?
   *(c)onnect to miner?
   *(t)ransfer funds?
   *(r)esend pending transactions?
@@ -170,14 +172,21 @@ function readUserInput() {
       case 'x':
         console.log(`Shutting down.  Have a nice day.`);
         process.exit(0);
-        /* falls through */
+      /* falls through */
+      case 'a':
+        address = minnie.createAddress()
+        console.log(`New address: ${address}`)
+        break;
+      case 'u':
+        minnie.showAllUtxos()
+        break;
       case 'b':
         console.log("  Balances: ");
         minnie.showAllBalances();
         break;
       case 'c':
         rl.question(`  port: `, (p) => {
-          minnie.registerWith({port: p});
+          minnie.registerWith({ port: p });
           console.log(`Registering with miner at port ${p}`);
           readUserInput();
         });
@@ -190,7 +199,7 @@ function readUserInput() {
             readUserInput();
           } else {
             rl.question(`  address: `, (addr) => {
-              let output = {amount: amt, address: addr};
+              let output = { amount: amt, address: addr };
               console.log(`Transferring ${amt} gold to ${addr}.`);
               minnie.postTransaction([output]);
               readUserInput();
@@ -216,7 +225,7 @@ function readUserInput() {
         console.log();
         minnie.showBlockchain();
         process.exit(0);
-        /* falls through */
+      /* falls through */
       default:
         console.log(`Unrecognized choice: ${answer}`);
     }
