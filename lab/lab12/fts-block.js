@@ -42,6 +42,8 @@ module.exports = class FtsBlock extends Block {
       }
     })
 
+    // console.log(this.randVal(rouletteWheel.length))
+
     return rouletteWheel[this.randVal(rouletteWheel.length)]
   }
 
@@ -53,7 +55,7 @@ module.exports = class FtsBlock extends Block {
    * @returns {Number} - The "random" value.
    */
   randVal(max) {
-    let n = new BigInteger(this.id, 16);
+    let n = new BigInteger(this.id, 16);                                            
     return n.modInt(max);
   }
 }

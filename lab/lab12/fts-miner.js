@@ -27,16 +27,6 @@ module.exports = class FtsMiner extends Miner {
    */
   findProof() {
     // No mining needed.
-
-    let blockHash = this.currentBlock.id
-    let block = Blockchain.deserializeBlock(blockHash)
-
-    while (!block.rewardAddr === this.address) {
-      blockHash = utils.hash(blockHash)
-      block = Blockchain.deserializeBlock(blockHash)
-    }
-
-    return block
   }
 
   /**

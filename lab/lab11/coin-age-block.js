@@ -69,17 +69,15 @@ module.exports = class CoinAgeBlock extends Block {
     //
     //    this.adjustedTarget = this.adjustedTarget.shiftLeft(1);
 
-  
-
     this.coinAgeBalances.forEach((value, key) => {
       this.coinAgeBalances.set(key, value + prevBlock.balances.get(key))
-
-      if (key === this.rewardAddr) {
-        this.adjustedTarget = this.adjustedTarget.shiftLeft(Math.floor(value / COIN_AGE_AMT))
-        this.coinAgeBalances.set(key, 0)
-      }
     })
 
+    let coinAge = this.coinAgeBalances.get(this.rewardAddr) || 0;
+
+    this.adjustedTarget = this.target.shiftLeft(Math.floor(coinAge / COIN_AGE_AMT));
+
+    this.coinAgeBalances.set(this.rewardAddr, 0);
   }
 
   /**

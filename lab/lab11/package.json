@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "jsbn": "^1.1.0",
     "spartan-gold": "^1.0.7"
   }
 }

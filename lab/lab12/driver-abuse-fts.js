@@ -1,6 +1,6 @@
 "use strict";
 
-const { Blockchain, Transaction, FakeNet, Block } = require('spartan-gold');
+const { Blockchain, Transaction, FakeNet, Block, utils } = require('spartan-gold');
 
 const FtsMiner = require('./fts-miner.js');
 const FtsBlock = require('./fts-block.js');
@@ -20,6 +20,7 @@ let mickey = new FtsMiner({name: "Mickey", net: fakeNet});
 let maleficent = new FtsMiner({name: "Maleficent", net: fakeNet});
 maleficent.shareBlock = function() {
   maleficent.log("Maleficent biases 'randomness' in her favor.");
+  maleficent.log(`maleficent address is ${this.address}` )
 
   //
   // **YOUR CODE HERE**
@@ -28,8 +29,20 @@ maleficent.shareBlock = function() {
   // until the hash value will select her to collect the next block.
   //
 
-  this.findProof()
+  let nextMiner = this.currentBlock.nextMiner()
 
+  while (nextMiner !== this.address) {
+    this.currentBlock.balances.set(this.address, this.currentBlock.balances.get(this.address) + 1)
+
+    console.log(`Next miner is ${nextMiner}`)
+
+    nextMiner = this.currentBlock.nextMiner()
+
+    if (nextMiner === this.address) {
+      break
+    }
+  }
+ 
   maleficent.log(`Creating block ${maleficent.currentBlock.id} at height ${maleficent.currentBlock.chainLength}`);
   setTimeout(() => maleficent.announceProof(), 250);
 }
