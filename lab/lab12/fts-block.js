@@ -2,7 +2,7 @@
 
 const BigInteger = require('jsbn').BigInteger;
 
-const { Block } = require('spartan-gold');
+const { Block, utils } = require('spartan-gold');
 
 /**
  * In our version of the FTS miner, a block determines who the
@@ -55,7 +55,13 @@ module.exports = class FtsBlock extends Block {
    * @returns {Number} - The "random" value.
    */
   randVal(max) {
-    let n = new BigInteger(this.id, 16);                                            
-    return n.modInt(max);
+    // let n = new BigInteger(this.id, 16);                                            
+    // return n.modInt(max);
+
+    let h = utils.hash("HASH-ME" + this.chainLength)
+
+    let n = BigInteger(h, 16)
+
+    return n.modInt(max)
   }
 }

@@ -22,27 +22,15 @@ maleficent.shareBlock = function() {
   maleficent.log("Maleficent biases 'randomness' in her favor.");
   maleficent.log(`maleficent address is ${this.address}` )
 
-  //
-  // **YOUR CODE HERE**
-  //
-  // Modify this method so that Maleficent will tamper with the block
-  // until the hash value will select her to collect the next block.
-  //
 
-  let nextMiner = this.currentBlock.nextMiner()
+  while (maleficent.currentBlock.nextMiner() !== maleficent.address) {
+    // this.currentBlock.balances.set(nextMiner, this.currentBlock.balances.get(nextMiner) + 1)
 
-  while (nextMiner !== this.address) {
-    this.currentBlock.balances.set(this.address, this.currentBlock.balances.get(this.address) + 1)
+    maleficent.currentBlock.proof++
 
-    console.log(`Next miner is ${nextMiner}`)
-
-    nextMiner = this.currentBlock.nextMiner()
-
-    if (nextMiner === this.address) {
-      break
-    }
+    setTimeout(() => maleficent.announceProof(), 250)
   }
- 
+
   maleficent.log(`Creating block ${maleficent.currentBlock.id} at height ${maleficent.currentBlock.chainLength}`);
   setTimeout(() => maleficent.announceProof(), 250);
 }
