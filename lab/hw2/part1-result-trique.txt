@@ -1,0 +1,158 @@
+Starting simulation.  This may take a moment...
+Initial balances:
+
+Alice's balance is 233.
+Bob's balance is 99.
+Charlie's balance is 67.
+
+Ulysses's total balance is 10.
+┌─────────┬────────────────────────────────────────────────┬────────┐
+│ (index) │                    address                     │ amount │
+├─────────┼────────────────────────────────────────────────┼────────┤
+│    0    │ 'usT2Q2EVEmcjjtnl8oXeT9t4v0GRwIJXhxHy7Q+HSwY=' │   10   │
+│    1    │                 '***TOTAL***'                  │   10   │
+└─────────┴────────────────────────────────────────────────┴────────┘
+
+Showing all UTXOs for Alice
+Alice: Showing balances:
+    6WcA2QJZUM7Al7OpDzsVJBkepPIoxCLVMTdMn+LZG3Y=: 233
+    OTWrpxw4iRnADK5Ki/4TpFFr7OAVef8BDEFL/ricuc0=: 99
+    0c5V3wHtOmUHFwxDWVsJ4/ztVZcI91Zi6tYO7vkSXn0=: 67
+    usT2Q2EVEmcjjtnl8oXeT9t4v0GRwIJXhxHy7Q+HSwY=: 10
+    5qNk0pS9Pa2w6KPV7W6dP7XHUYSYIJIUtWhlEVhR0eM=: 200
+    U8WtKjhpXdhvhFvCpl1Ve6WukouxQD6RWVR4tIeAG7E=: 200
+
+***Alice is transferring 40 gold to Ulysses at address aR/2/vceZ2kTCyZFsPw48AihHltd5Xp/f627xmfHLTc=
+
+Mickey: found proof for block 1: 29197
+Mickey: cutting over to new chain.
+Minnie: cutting over to new chain.
+Minnie: found proof for block 2: 12148
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Mickey: Replayed transaction 4497279df857d62dfabfde36d2260cecca85edd1e16b5312fcf3b631850f85a3.
+Minnie: found proof for block 3: 31678
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Mickey: found proof for block 4: 6579
+Mickey: cutting over to new chain.
+Minnie: cutting over to new chain.
+Minnie: found proof for block 5: 14113
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Minnie: found proof for block 6: 446
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Minnie: found proof for block 7: 8857
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Mickey: found proof for block 8: 1527
+Mickey: cutting over to new chain.
+Minnie: cutting over to new chain.
+Minnie: found proof for block 9: 9870
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Minnie: found proof for block 10: 3290
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Mickey: found proof for block 11: 14841
+Mickey: cutting over to new chain.
+Minnie: cutting over to new chain.
+Mickey: found proof for block 12: 4468
+Mickey: cutting over to new chain.
+Minnie: cutting over to new chain.
+Minnie: found proof for block 13: 2926
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+
+***Alice is transferring 30 gold to Ulysses at address n+HVvKilNb+nUBERW/8bwMNcKJ2EXsIpVd/GBxRnPog=
+
+Minnie: found proof for block 14: 7800
+Minnie: cutting over to new chain.    
+Mickey: cutting over to new chain.
+Mickey: found proof for block 15: 7731
+Mickey: cutting over to new chain.
+Minnie: cutting over to new chain.
+Minnie: Replayed transaction 98f063d253e22bfa5ed59f4cdeb639bcd3321a0b582964519c94280cffaa9626.
+Minnie: found proof for block 16: 235
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Minnie: found proof for block 17: 18885
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Minnie: found proof for block 18: 2406
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Minnie: found proof for block 19: 24660
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Minnie: found proof for block 20: 16392
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Mickey: found proof for block 21: 8804
+Mickey: cutting over to new chain.
+Minnie: cutting over to new chain.
+Minnie: found proof for block 22: 478
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Minnie: found proof for block 23: 10737
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Mickey: found proof for block 24: 7564
+Mickey: cutting over to new chain.
+Minnie: found proof for block 24: 8043
+Minnie: cutting over to new chain.
+Mickey: found proof for block 25: 2394
+Mickey: cutting over to new chain.
+Minnie: cutting over to new chain.
+Mickey: found proof for block 26: 4651
+Mickey: cutting over to new chain.
+Minnie: cutting over to new chain.
+Mickey: found proof for block 27: 7424
+Mickey: cutting over to new chain.
+Minnie: cutting over to new chain.
+Minnie: found proof for block 28: 34434
+Minnie: cutting over to new chain.
+Mickey: found proof for block 28: 37327
+Mickey: cutting over to new chain.
+Mickey: found proof for block 29: 2261
+Mickey: cutting over to new chain.
+Minnie: cutting over to new chain.
+Minnie: found proof for block 30: 22974
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Minnie: found proof for block 31: 663
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+Mickey: found proof for block 32: 16912
+Mickey: cutting over to new chain.
+Minnie: cutting over to new chain.
+Minnie: found proof for block 33: 3945
+Minnie: cutting over to new chain.
+Mickey: cutting over to new chain.
+
+
+Alice's balance is 161.
+Bob's balance is 99.
+Charlie's balance is 67.
+
+Ulysses's total balance is 80.
+┌─────────┬────────────────────────────────────────────────┬────────┐
+│ (index) │                    address                     │ amount │
+├─────────┼────────────────────────────────────────────────┼────────┤
+│    0    │ 'usT2Q2EVEmcjjtnl8oXeT9t4v0GRwIJXhxHy7Q+HSwY=' │   10   │
+│    1    │ 'aR/2/vceZ2kTCyZFsPw48AihHltd5Xp/f627xmfHLTc=' │   40   │
+│    2    │ 'n+HVvKilNb+nUBERW/8bwMNcKJ2EXsIpVd/GBxRnPog=' │   30   │
+│    3    │                 '***TOTAL***'                  │   80   │
+└─────────┴────────────────────────────────────────────────┴────────┘
+
+Showing all UTXOs for Alice
+Alice: Showing balances:
+    6WcA2QJZUM7Al7OpDzsVJBkepPIoxCLVMTdMn+LZG3Y=: 161
+    OTWrpxw4iRnADK5Ki/4TpFFr7OAVef8BDEFL/ricuc0=: 99
+    0c5V3wHtOmUHFwxDWVsJ4/ztVZcI91Zi6tYO7vkSXn0=: 67
+    usT2Q2EVEmcjjtnl8oXeT9t4v0GRwIJXhxHy7Q+HSwY=: 10
+    5qNk0pS9Pa2w6KPV7W6dP7XHUYSYIJIUtWhlEVhR0eM=: 601
+    U8WtKjhpXdhvhFvCpl1Ve6WukouxQD6RWVR4tIeAG7E=: 451
+    aR/2/vceZ2kTCyZFsPw48AihHltd5Xp/f627xmfHLTc=: 40
+    n+HVvKilNb+nUBERW/8bwMNcKJ2EXsIpVd/GBxRnPog=: 30

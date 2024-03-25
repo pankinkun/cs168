@@ -47,6 +47,7 @@ module.exports = class UtxoBlock extends Block {
 
     tx.from.forEach((address) => {
       this.balances.delete(address)
+      this.wallet = this.wallet.filter((wallet) => wallet.address !== address)
     })
 
     tx.outputs.forEach(({ amount, address }) => {
