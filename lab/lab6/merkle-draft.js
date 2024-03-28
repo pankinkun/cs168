@@ -23,12 +23,12 @@ class MerkleTree {
   // the other half of the hash needed to continue to the root.
   static hashToRoot(hashes, i) {
     if (i === 0) return;
-    let par = (i-2)/2;
-    hashes[par] = utils.hash("" + hashes[i-1] + "," + hashes[i]);
+    let par = (i - 2) / 2;
+    hashes[par] = utils.hash("" + hashes[i - 1] + "," + hashes[i]);
 
     // Test to see if we are the right subnode.  If so, we can hash
     // with the left subnode to continue one level up.
-    if (par%2 === 0) {
+    if (par % 2 === 0) {
       this.hashToRoot(hashes, par);
     }
   }
@@ -50,12 +50,12 @@ class MerkleTree {
     // Hashes of transactions start in the middle of the array.
     let firstTrans = Math.floor(numBalancedTree / 2);
 
-    for (let i=firstTrans; i<numBalancedTree; i++) {
+    for (let i = firstTrans; i < numBalancedTree; i++) {
       let tNum = i - firstTrans;
 
       // If we have less than a power of 2 elements,
       // we pad out the transactions and arrays with the last element
-      let v = tNum<transactions.length ? transactions[tNum].toString() : this.transactions[tNum-1];
+      let v = tNum < transactions.length ? transactions[tNum].toString() : this.transactions[tNum - 1];
       let h = utils.hash(v);
 
       this.transactions[tNum] = v;
@@ -64,7 +64,7 @@ class MerkleTree {
     }
 
     // Completing inner nodes of Merkle tree
-    for (let i=firstTrans+1; i<this.hashes.length; i+=2) {
+    for (let i = firstTrans + 1; i < this.hashes.length; i += 2) {
       this.constructor.hashToRoot(this.hashes, i);
     }
   }
@@ -79,15 +79,30 @@ class MerkleTree {
     let i = this.lookup[h];
     let path = { txInd: i };
 
-    while (i > 0) {
-      if (i % 2 === 0) {
-        path[i-1] = this.hashes[i + 1]
-        i = (i - 2) / 2
-      } else {
-        path[i+1] = this.hashes[i + 1]
-        i = (i - 1) / 2
-      }
+    if (i === 0) {
+      return path
     }
+
+    if (i > 0 && i % 2 === 0) {
+      i = i - 1
+      path[i] = this.hashes[i]
+    } else if (i > 0 && i % 2 !== 0 && i < this.hashes.length - 1) {
+      i = i + 1
+      path[i] = this.hashes[i]
+    } else {
+      path[i] = this.hashes[i]
+    }
+
+    while (Math.floor((i + 1) / 2) - 1 > 0) {
+      i % 2 === 0 ? i = i / 2 - 1 : i = Math.floor((i + 1) / 2) - 1
+
+      i % 2 === 0 ? i = i - 1 : i = i + 1
+
+      path[i] = this.hashes[i]
+    }
+
+    path[0] = this.hashes[0]
+
     return path;
   }
 
@@ -95,17 +110,63 @@ class MerkleTree {
   verify(tx, path) {
     let i = path.txInd;
     let h = utils.hash(tx);
-    while (i > 0) {
-      if (i % 2 === 0) {
-        let sib = path[i-1]
-        h = utils.hash(sib + "," + h)
-        i = (i - 2) / 2
-      } else {
-        let sib = path[i+1]
-        h = utils.hash(h + "," + sib)
-        i = (i - 1) / 2
+
+    if (i === 0) {
+      return this.hashes[0] === h
+    }
+
+    let hash
+    let parent
+
+    if (i > 0 && i % 2 === 0) {
+      i = i - 1
+    } else if (i > 0 && i % 2 !== 0 && i < this.hashes.length - 1) {
+      i = i + 1
+    }
+
+    if (i % 2 === 0) {
+      parent = i / 2 - 1
+      hash = utils.hash("" + h + "," + path[i])
+    } else {
+      parent = Math.floor((i + 1) / 2) - 1
+      hash = utils.hash("" + path[i] + "," + h)
+    }
+
+    if (this.hashes[parent] === hash) {
+      h = this.hashes[parent]
+
+      i = parent
+
+      i % 2 === 0 ? i = i - 1 : i = i + 1
+    } else {
+      console.log("hashes don't match at " + i + " " + h + " " + path[i])
+      return false
+    }
+
+    while (i >= 0) {
+      if (i === 0) {
+        return this.hashes[0] === hash
       }
-    }  
+
+      if (i % 2 === 0) {
+        parent = i / 2 - 1
+        hash = utils.hash("" + h + "," + path[i])
+      } else {
+        parent = Math.floor((i + 1) / 2) - 1
+        hash = utils.hash("" + path[i] + "," + h)
+      }
+
+      if (this.hashes[parent] === hash) {
+        h = this.hashes[parent]
+        i = parent
+        i % 2 === 0 ? i = i - 1 : i = i + 1
+      } else {
+        console.log("hashes don't match at " + i + " " + h + " " + path[i])
+        return false
+      }
+    }
+
+    return true
   }
 
   // Returns a boolean indicating whether this node is part
@@ -127,11 +188,11 @@ class MerkleTree {
 
     while (i < this.hashes.length) {
       // Truncating hashes for the sake of readability
-      s += this.hashes[i].slice(0,6) + " ";
+      s += this.hashes[i].slice(0, 6) + " ";
       if (i === nextRow) {
         console.log(s);
         s = "";
-        nextRow = (nextRow+1) * 2;
+        nextRow = (nextRow + 1) * 2;
       }
       i++;
     }
@@ -141,3 +202,11 @@ class MerkleTree {
 
 exports.MerkleTree = MerkleTree;
 
+// 1) Passed an object, then txInd for the starting point
+// Calculate “uncle” node’s index
+// Hash the current result with the hash provided by uncle node
+// When you reach the root, verify that you have a match.
+
+// 2) Use an array(or maybe arrays) containing a) the hashes required on the Merkle path in the order that you need them
+// b) the starting index
+//i = (i%2) ? i/2-1 : Math.floow((i+1) / 2) - 1;

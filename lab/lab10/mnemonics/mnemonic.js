@@ -98,7 +98,7 @@ class Mnemonic {
       //
       // ***YOUR CODE HERE***
       //
-      // Fill `this.seq` // with 32 random bytes.  The
+      // Fill `this.seq` // with 32 random bytes. The
       // crypto.randomFillSync function may be useful here.
       //
       // Next, calculate the checksum.  The checksum is 1 byte,
