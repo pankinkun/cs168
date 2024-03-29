@@ -2,8 +2,10 @@
 
 const { Blockchain, Block, Miner, Client, Transaction, FakeNet } = require('spartan-gold');
 
-const PoolOperator = require('./pool-operator.js');
+const PoolOperator = require('./pplns-pool-operator.js');
 const PoolMiner = require('./pool-miner.js');
+const PropPoolOperator = require('./prop-pool-operator.js');
+const PplnsPoolOperator = require('./pplns-pool-operator.js');
 
 console.log("Starting simulation.  This may take a moment...");
 
@@ -21,7 +23,7 @@ let donald = new Miner({name: "Donald", net: fakeNet});
 
 // Mining Pool operator and miners
 let poolNet = new FakeNet();
-let snowWhite = new PoolOperator({name: "Snow White", net: fakeNet, poolNet: poolNet});
+let snowWhite = new PropPoolOperator({name: "Snow White", net: fakeNet, poolNet: poolNet});
 let doc = new PoolMiner({name: "Doc", net: fakeNet, operatorAddress: snowWhite.address});
 let happy = new PoolMiner({name: "Happy", net: fakeNet, operatorAddress: snowWhite.address});
 let sneezy = new PoolMiner({name: "Sneezy", net: fakeNet, operatorAddress: snowWhite.address});

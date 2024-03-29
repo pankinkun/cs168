@@ -20,14 +20,14 @@ const SHARE_REWARD = 2;
  * On the plus side, PPS mining pools are not vulnerable to
  * pool-hopping attacks.
  */
-module.exports = class PoolOperator extends Miner {
+module.exports = class PropPoolOperator extends Miner {
 
   /**
    * A pool operator needs connections to its miners, in addition to
    * the normal miner stuff.
    */
-  constructor({name, net, startingBlock, keyPair, miningRounds, poolNet} = {}) {
-    super({name, net, startingBlock, keyPair, miningRounds, poolNet});
+  constructor({ name, net, startingBlock, keyPair, miningRounds, poolNet } = {}) {
+    super({ name, net, startingBlock, keyPair, miningRounds, poolNet });
 
     this.poolNet = poolNet;
 
@@ -36,6 +36,9 @@ module.exports = class PoolOperator extends Miner {
 
     // Storing transactions for next block.
     this.transactions = new Set();
+
+    // List of miners to reward.
+    this.rewardList = new Set();
 
     this.on(SHARE_FOUND, this.receiveShare);
   }
@@ -99,30 +102,37 @@ module.exports = class PoolOperator extends Miner {
   }
 
   /**
-   * Different mining pools follow different strategies for rewarding miners.
-   * With a PPS mining pool, the miners are rewarded for their shares immediately.
-   * 
-   * @param minerAddress - Address of the miner who found a share.
-   */
-  rewardMiner(minerAddress) {
-    this.log(`Paying ${minerAddress} ${SHARE_REWARD} gold for their share.`);
-    this.postTransaction([{address: minerAddress, amount: SHARE_REWARD}], 0);
-  }
-
-  /**
-   * When we find a proof, we announce it and then reward our pool operators,
-   * if we have not already paid out the rewards.
-   */
+    * When we find a proof, we announce it and then reward our pool operators,
+    * if we have not already paid out the rewards.
+    */
   announceProof() {
     super.announceProof();
-    this.payRewards();
+
+    if (Blockchain.length === 10) {
+      this.payRewards();
+    }
   }
 
-  /**
-   * In a PPS mining pool, we have already paid our miners.
-   */
-  payRewards() {
-    // Do nothing.
+  rewardMiner(minerAddress) {
+    this.log(`Adding ${minerAddress}`)
+
+    this.rewardList.add(minerAddress);
   }
-  
+
+  payRewards() {
+    let coinbaseReward = 25
+    let totalShares = this.rewardList.size
+    let rewardAmount = coinbaseReward - 5
+    let minerReward = rewardAmount / totalShares
+
+    this.log(`Paying out ${rewardAmount} gold to ${totalShares} miners.`)
+
+    this.rewardList.forEach((minerAddress) => {
+      this.log(`Paying ${minerReward} to ${minerAddress}`)
+      this.postTransaction([{ address: minerAddress, amount: minerReward }], 0)
+    })
+
+    this.rewardList.clear()
+  }
+
 }
