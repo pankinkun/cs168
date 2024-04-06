@@ -189,7 +189,7 @@ module.exports = class Validator extends Miner {
     }
 
     // We wait to collect proposals before we choose one.
-    setTimeout(() => this.prevote(), this.round*StakeBlockchain.DELTA);
+    setTimeout(() => this.prevote(), this.round * StakeBlockchain.DELTA);
   }
 
   /**
@@ -225,14 +225,23 @@ module.exports = class Validator extends Miner {
     // **YOUR CODE HERE**
     //
     // For every validator (including the proposer), increase their accumulated
-    // power according to the amount of coins they currently have bonded.
+    //  power according to the amount of coins they currently have bonded.
     //
-    // Calculate the total increase in power.  (You can do this when you loop
+    // Calculate the total increase in power. (You can do this when you loop
     // through the validators in the previous step).
     //
     // Once you have calculated the total increase, deduct that amount from the block
-    // proposer's accumulated power.  (The effect of this step is that the proposer
+    // proposer's accumulated power. (The effect of this step is that the proposer
     // is moved back in the queue.)
+
+    let totalIncrease = 0
+
+    accumPower.forEach((power, addr) => {
+      accumPower.set(addr, power + bondBalances.get(addr))
+      totalIncrease += bondBalances.get(addr)
+    })
+
+    accumPower.set(proposerAddr, accumPower.get(proposerAddr) - totalIncrease)
   }
 
   /**
@@ -243,7 +252,7 @@ module.exports = class Validator extends Miner {
    * attacks.
    */
   proposeBlock() {
-    
+
     this.currentBlock = StakeBlockchain.makeBlock(this.address, this.lastBlock);
 
     // Add queued-up transactions to block.
@@ -311,10 +320,16 @@ module.exports = class Validator extends Miner {
    */
   prevote() {
     let vote = undefined;
-
     //
     // **YOUR CODE HERE**
     //
+    if (this.lockedBlock !== undefined) {
+      vote = Vote.makeVote(this, StakeBlockchain.PREVOTE, this.lockedBlock.id)
+    } else if (this.proposals.length > 0) {
+      vote = Vote.makeVote(this, StakeBlockchain.PREVOTE, this.proposals[0].blockID)
+    } else {
+      vote = Vote.makeNilVote(this, StakeBlockchain.PREVOTE)
+    }
 
     //this.log(`Voting for block ${vote.blockID}`);
 
@@ -323,7 +338,7 @@ module.exports = class Validator extends Miner {
     this.net.broadcast(StakeBlockchain.PREVOTE, vote);
 
     // After voting, set timer before determining precommit.
-    setTimeout(() => this.precommit(), this.round*StakeBlockchain.DELTA);
+    setTimeout(() => this.precommit(), this.round * StakeBlockchain.DELTA);
   }
 
   /**
@@ -357,8 +372,19 @@ module.exports = class Validator extends Miner {
     // **YOUR CODE HERE**
     //
 
+    if (winningBlockID !== undefined) {
+      this.log(`Block ${winningBlockID} has 2/3 votes for ${this.height}-${this.round}.  Locking.`)
+      this.lockedBlock = this.proposedBlocks[winningBlockID]
+
+      let precommitVote = Vote.makeVote(this, StakeBlockchain.PRECOMMIT, winningBlockID)
+      this.net.broadcast(StakeBlockchain.PRECOMMIT, precommitVote)
+    } else if (winningBlockID === StakeBlockchain.NIL) {
+      this.log(`NIL has 2/3 votes for ${this.height}-${this.round}.  Releasing lock.`)
+      delete this.lockedBlock
+    }
+
     // Setting to decide on whether to commit.
-    setTimeout(() => this.commitDecision(), this.round*StakeBlockchain.DELTA);
+    setTimeout(() => this.commitDecision(), this.round * StakeBlockchain.DELTA);
   }
 
   /**
@@ -386,6 +412,12 @@ module.exports = class Validator extends Miner {
     // winning block ID.
     //
     // Otherwise, start a new round by calling the newRound method.
+
+    if (winningBlockID !== undefined) {
+      this.commit(winningBlockID)
+    } else {
+      this.newRound()
+    }
   }
 
   /**
@@ -408,12 +440,19 @@ module.exports = class Validator extends Miner {
     // Look up the block for winningBlockID from this.proposedBlocks.
     // (Since we don't drop messages in our simulation, it should be available.)
     // 
-    // Set this.nextBlock to that block.  Note this should be set to a Block
+    // Set this.nextBlock to that block. Note this should be set to a Block
     // instance, not the ID of a block.
     //
     // Finally, broadcast a commit vote for the block.
 
-    setTimeout(() => this.finalizeCommit(), this.round*StakeBlockchain.DELTA);
+    let block = this.proposedBlocks[winningBlockID]
+    this.nextBlock = block
+
+    let commitVote = Vote.makeVote(this, StakeBlockchain.COMMIT, winningBlockID)
+
+    this.net.broadcast(StakeBlockchain.COMMIT, commitVote)
+
+    setTimeout(() => this.finalizeCommit(), this.round * StakeBlockchain.DELTA);
   }
 
   /**
@@ -435,7 +474,7 @@ module.exports = class Validator extends Miner {
 
     if (winningBlockID === undefined) {
       // If we have less than 2/3 commits, wait longer.
-      this.log(`No consensus on ${this.nextBlock.id} (${this.height}-${this.round}) yet.  Waiting...`);
+      // this.log(`No consensus on ${this.nextBlock.id} (${this.height}-${this.round}) yet.  Waiting...`);
       setTimeout(() => this.finalizeCommit(), StakeBlockchain.DELTA);
     } else {
       this.commits = {};
@@ -501,7 +540,7 @@ module.exports = class Validator extends Miner {
    */
   showAllBalances() {
     this.log("Showing balances:");
-    for (let [id,balance] of this.lastConfirmedBlock.balances) {
+    for (let [id, balance] of this.lastConfirmedBlock.balances) {
       console.log(`    ${id}: ${balance} (${this.lastConfirmedBlock.amountGoldBonded(id)} staked)`);
     }
   }
