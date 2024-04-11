@@ -1,0 +1,17 @@
+pragma solidity ^0.6;
+
+contract Faucet {
+  // Give out ether to whoever wants it.
+  function withdraw(uint amt) public {
+    require(amt <= 100000000000000000);
+    // msg - the transaction
+    // sender - the account initiating the tx
+    // transfer -- built in fun.
+    msg.sender.transfer(amt);
+  }
+
+  // A receive function accepts incoming funds.
+  // This version does nothing else.
+  function donate() external payable {}
+}
+

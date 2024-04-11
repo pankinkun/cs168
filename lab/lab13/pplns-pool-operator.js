@@ -1,4 +1,4 @@
-"use strict";
+  "use strict";
 
 const { Miner, Blockchain } = require('spartan-gold');
 const PoolMiner = require('./pool-miner');

@@ -378,6 +378,7 @@ module.exports = class Validator extends Miner {
 
       let precommitVote = Vote.makeVote(this, StakeBlockchain.PRECOMMIT, winningBlockID)
       this.net.broadcast(StakeBlockchain.PRECOMMIT, precommitVote)
+      
     } else if (winningBlockID === StakeBlockchain.NIL) {
       this.log(`NIL has 2/3 votes for ${this.height}-${this.round}.  Releasing lock.`)
       delete this.lockedBlock
