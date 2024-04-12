@@ -323,10 +323,17 @@ module.exports = class Validator extends Miner {
     //
     // **YOUR CODE HERE**
     //
+
+    const conflictingProposals = this.proposals.filter(proposal => proposal.height === this.height && proposal.round === this.round && proposal.from === this.currentProposer)
+
+    if (conflictingProposals.length > 1) {
+      this.postEvidenceTransaction(this.currentProposer, conflictingProposals[0], conflictingProposals[1])
+    }
+
     if (this.lockedBlock !== undefined) {
       vote = Vote.makeVote(this, StakeBlockchain.PREVOTE, this.lockedBlock.id)
     } else if (this.proposals.length > 0) {
-      vote = Vote.makeVote(this, StakeBlockchain.PREVOTE, this.proposals[0].blockID)
+      vote = Vote.makeVote(this, StakeBlockchain.PREVOTE, this.proposals[this.proposals.length - 1].blockID)
     } else {
       vote = Vote.makeNilVote(this, StakeBlockchain.PREVOTE)
     }
@@ -378,7 +385,7 @@ module.exports = class Validator extends Miner {
 
       let precommitVote = Vote.makeVote(this, StakeBlockchain.PRECOMMIT, winningBlockID)
       this.net.broadcast(StakeBlockchain.PRECOMMIT, precommitVote)
-      
+
     } else if (winningBlockID === StakeBlockchain.NIL) {
       this.log(`NIL has 2/3 votes for ${this.height}-${this.round}.  Releasing lock.`)
       delete this.lockedBlock
