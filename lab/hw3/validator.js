@@ -46,7 +46,6 @@ module.exports = class Validator extends Miner {
 
     // Start block production
     setTimeout(() => this.newRound(), 0);
-
   }
 
   /**
@@ -421,7 +420,7 @@ module.exports = class Validator extends Miner {
     //
     // Otherwise, start a new round by calling the newRound method.
 
-    if (winningBlockID !== undefined) {
+    if (winningBlockID !== undefined && winningBlockID !== StakeBlockchain.NIL) {
       this.commit(winningBlockID)
     } else {
       this.newRound()
