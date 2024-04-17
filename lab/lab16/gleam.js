@@ -49,6 +49,8 @@ class GleamVirtualMachine {
     // initialized to 0.
     //
 
+    let gasUsed = 0
+
     while (this.pc < this.bytecode.length) {
       let opcode = this.bytecode.readUInt8(this.pc);
       let operation = opcodes[opcode];
@@ -64,6 +66,12 @@ class GleamVirtualMachine {
       // One the amount of gas consumed exceeds gasLimit, throw an
       // error for "Out of gas".
       //
+
+      gasUsed += operation.gas
+
+      if (gasUsed > gasLimit) {
+        throw new Error("Out of gas")
+      }
 
       this.pc++;
     }

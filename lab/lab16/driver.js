@@ -60,9 +60,8 @@ function translate(instructions) {
 }
 
 // Handling command line arguments.
-if (process.argv0 === 'node') {
-  process.argv.shift();
-}
+process.argv.shift();
+
 if (process.argv.length < 2 || process.argv.length > 3) {
   console.log("driver.js <gleam file> [<gas amount>]");
   process.exit(1);
