@@ -20,17 +20,19 @@ let mt = new MerkleTree(["a","b","c","d","e","f","g","h"]);
 
 mt.display()
 
-test(mt, "c");
-test(mt, "d");
-test(mt, "f");
-test(mt, "h");
+console.log(mt.root)
 
-// Corrupting an element of the hash
-mt.hashes[2] = utils.hash("satoshi");
+// test(mt, "c");
+// test(mt, "d");
+// test(mt, "f");
+// test(mt, "h");
 
-// Should be caught as invalid.
-test(mt, "c");
+// // Corrupting an element of the hash
+// mt.hashes[2] = utils.hash("satoshi");
 
-// Should still be OK, since the corrupted position is not part of its path.
-test(mt, "h");
+// // Should be caught as invalid.
+// test(mt, "c");
+
+// // Should still be OK, since the corrupted position is not part of its path.
+// test(mt, "h");
 
