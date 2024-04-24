@@ -3,7 +3,7 @@
 const Web3 = require('web3');
 const fs = require('fs')
 
-let url = "http://localhost:8545";
+let url = "http://localhost:7545";
 let web3 = new Web3(url);
 let contractName = 'Vote_sol_Vote';
 

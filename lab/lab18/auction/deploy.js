@@ -38,12 +38,12 @@ function deployContract(url, contractName, from, gas=GAS, gasPrice=GAS_PRICE_IN_
   });
 }
 
-if (process.argv0 === 'node') {
-  process.argv.shift();
-}
+// if (process.argv0 === 'node') {
+//   process.argv.shift();
+// }
 
-let contractName = process.argv[1];
-let fromAddress = process.argv[2];
+let contractName = process.argv[2];
+let fromAddress = process.argv[3];
 
-deployContract("http://localhost:8545", contractName, fromAddress);
+deployContract("http://127.0.0.1:8545", contractName, fromAddress);
 
