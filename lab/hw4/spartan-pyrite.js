@@ -24,7 +24,7 @@ module.exports = class SpartanPyrite {
    * @param {String} [config.contractName] - The name of the bin/abi files, without extensions. 
    * @param {String} [config.url] - The URL that Ganache is listening to.
    */
-  constructor({ contractAddress, contractName=CONTRACT_NAME, url=URL }={}) {
+  constructor({ contractAddress, contractName = CONTRACT_NAME, url = URL } = {}) {
     this.contractName = contractName
     this.url = url;
     this.web3 = new Web3(this.url);
@@ -47,7 +47,7 @@ module.exports = class SpartanPyrite {
    * 
    * @returns {Promise}
    */
-  deploy(from, gas=GAS, gasPrice=GAS_PRICE_IN_ETH) {
+  deploy(from, gas = GAS, gasPrice = GAS_PRICE_IN_ETH) {
     let bytecode = fs.readFileSync(`${this.contractName}.bin`).toString();
     let abi = JSON.parse(fs.readFileSync(`${this.contractName}.abi`).toString());
 
@@ -101,6 +101,10 @@ module.exports = class SpartanPyrite {
     //
     // **YOUR CODE HERE**
     //
+
+    this.contract.methods.burn(amtEth).send({
+      from: ethAddr,
+    });
   }
 
   /**
@@ -116,7 +120,7 @@ module.exports = class SpartanPyrite {
   getBurned(ethAddr) {
     return this.contract.methods.getBurnedAmount(ethAddr).call((_, amount) => {
       return amount;
-    });
+    }); 
   }
 
   /**
@@ -132,6 +136,10 @@ module.exports = class SpartanPyrite {
     //
     // **YOUR CODE HERE**
     //
+
+    this.contract.methods.setSpartanGoldAddr(sgAddr).send({
+      from: ethAddr,
+    });
   }
 
   /**
@@ -147,6 +155,10 @@ module.exports = class SpartanPyrite {
     //
     // **YOUR CODE HERE**
     //
+
+    this.contract.methods.getSpartanGoldAddr().call((_, sgAddr) => {
+      return sgAddr;
+    })
   }
 
   /**
@@ -163,6 +175,10 @@ module.exports = class SpartanPyrite {
     //
     // **YOUR CODE HERE**
     //
+
+    this.contract.methods.getBurnDetails().call((_, sgAddr, amt) => {
+      return [sgAddr, amt];
+    });
   }
 
   /**
