@@ -9,14 +9,11 @@ const ETH_ADDR = "0xAe750a1154F072A130bb90609c05Ff1f6bDFA7e6";
 
 console.log("Starting simulation.  This may take a moment...");
 
-// The contract address must be passed in as a command line argument.
-if (process.argv0 === 'node') {
-  process.argv.shift();
+if (process.argv.length < 3) {
+  console.error("Usage: node driver.js <contract address>");5
 }
-if (process.argv.length < 2) {
-  console.error("Usage: node driver.js <contract address>");
-}
-let contractAddress = process.argv[1];
+
+let contractAddress = process.argv[2];
 
 let fakeNet = new FakeNet();
 

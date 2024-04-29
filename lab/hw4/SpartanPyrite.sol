@@ -53,7 +53,7 @@ contract SpartanPyrite is ERC20Interface {
         return true;
     }
 
-    // Authorize operator to withdraw 'amount' worth of tokens from the caller's account.
+    // Authorize operator to withdraw 'amount' worth of tokens from the caller's account.*
     function approve(
         address operator,
         uint amount

@@ -35,6 +35,26 @@ module.exports = class Banker extends Client {
     //
     // **YOUR CODE HERE**
     //
-  }
 
+    this.sp.getBurnDetails(ethAddress)
+      .then(([sgAddr, amtBurned]) => {
+
+        if (this.burned.has(ethAddress)) {
+          let amtGold = this.burned.get(ethAddress)
+          let diff = Math.abs(amtBurned - amtGold)
+
+          if (diff === 0) {
+            console.log(`No new gold to mint for ${ethAddress}.`)
+            return
+          }
+
+          this.postTransaction([{ amount: diff, address: sgAddr }])
+          this.burned.set(ethAddress, diff)
+
+        } else {
+          this.postTransaction([{ amount: amtBurned, address: sgAddr }])
+          this.burned.set(ethAddress, amtBurned)
+        }
+      });
+  }
 }

@@ -6,7 +6,7 @@ const Web3 = require('web3');
 // Default parameters for calling Ethereum
 const GAS = 1500000;
 const GAS_PRICE_IN_ETH = '0.00003';
-const URL = "http://localhost:8545";
+const URL = "http://127.0.0.1:8545";
 const CONTRACT_NAME = "SpartanPyrite_sol_SpartanPyrite";
 
 /**
@@ -104,6 +104,7 @@ module.exports = class SpartanPyrite {
 
     this.contract.methods.burn(amtEth).send({
       from: ethAddr,
+      gas: this.gas,
     });
   }
 
@@ -120,7 +121,7 @@ module.exports = class SpartanPyrite {
   getBurned(ethAddr) {
     return this.contract.methods.getBurnedAmount(ethAddr).call((_, amount) => {
       return amount;
-    }); 
+    });
   }
 
   /**
@@ -137,8 +138,11 @@ module.exports = class SpartanPyrite {
     // **YOUR CODE HERE**
     //
 
-    this.contract.methods.setSpartanGoldAddr(sgAddr).send({
+    let hexAddr = this.base64toHex(sgAddr)
+
+    this.contract.methods.setSpartanGoldAddress(hexAddr).send({
       from: ethAddr,
+      gas: this.gas,
     });
   }
 
@@ -156,8 +160,8 @@ module.exports = class SpartanPyrite {
     // **YOUR CODE HERE**
     //
 
-    this.contract.methods.getSpartanGoldAddr().call((_, sgAddr) => {
-      return sgAddr;
+    this.contract.methods.getSpartanGoldAddress(ethAddr).call((_, sgAddr) => {
+      return this.base64toHex(sgAddr);
     })
   }
 
@@ -176,8 +180,11 @@ module.exports = class SpartanPyrite {
     // **YOUR CODE HERE**
     //
 
-    this.contract.methods.getBurnDetails().call((_, sgAddr, amt) => {
-      return [sgAddr, amt];
+    return Promise.all([
+      this.contract.methods.getSpartanGoldAddress(ethAddr).call(),
+      this.contract.methods.getBurnedAmount(ethAddr).call()
+    ]).then(([sgAddress, burnedAmount]) => {
+      return [this.hexToBase64(sgAddress), burnedAmount];
     });
   }
 

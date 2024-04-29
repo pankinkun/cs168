@@ -22,9 +22,10 @@ mt.display()
 
 console.log(mt.root)
 
+
 // test(mt, "c");
 // test(mt, "d");
-// test(mt, "f");
+test(mt, "f");
 // test(mt, "h");
 
 // // Corrupting an element of the hash

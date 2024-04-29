@@ -7,10 +7,6 @@ let from = "0x2aF1408aAACf96fD117eeBc148B11767B354cb37";
 let to = "0xAe750a1154F072A130bb90609c05Ff1f6bDFA7e6";
 let sgAddr = "7i4EPXqdAX6gClju3EW/FdZB0HR179xjqo1zglRqijM=";
 
-// if (process.argv0 === 'node') {
-//   process.argv.shift();
-// }
-
 let sp;
 let pr;
 
