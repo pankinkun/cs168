@@ -43,7 +43,7 @@ module.exports = class Banker extends Client {
           let amtGold = this.burned.get(ethAddress)
           let diff = Math.abs(amtBurned - amtGold)
 
-          if (diff === 0) {
+          if (diff <= 0) {
             console.log(`No new gold to mint for ${ethAddress}.`)
             return
           }
