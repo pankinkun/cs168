@@ -30,6 +30,8 @@ module.exports = class NonOutsourceableBlock extends Block {
     //
     // **YOUR CODE HERE**
     //
+
+    return utils.hash(`${this.prevBlockHash}||${this.pubKey}||${this.proof}||${this.sig1}`)
   }
 
   /**
@@ -67,6 +69,8 @@ module.exports = class NonOutsourceableBlock extends Block {
     //
     // **YOUR CODE HERE**
     //
+
+    this.sig2 = utils.sign(privKey, this.transactionHash())
   }
 
   /**
@@ -77,6 +81,8 @@ module.exports = class NonOutsourceableBlock extends Block {
     //
     // **YOUR CODE HERE**
     //
+
+    return this.hasValidPrelimProof() && utils.verifySignature(this.pubKey, this.transactionHash(), this.sig2)
   }
 
   /**

@@ -51,6 +51,15 @@ module.exports = class NonoutsourcingMiner extends Miner {
       //
       // Note that the NonoutsourceableBlock class has some methods that
       // might be helpful.
+
+      if (this.currentBlock.hasValidPrelimProof()) {
+        this.currentBlock.sign(this.keyPair.private)
+        this.foundProof()
+        break
+      }
+
+      this.currentBlock.proof++
+      this.currentBlock.signPrelim(this.keyPair.private)
     }
 
     // Check if anyone has found a block, and then return to mining.
